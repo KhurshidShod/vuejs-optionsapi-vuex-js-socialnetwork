@@ -1,0 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@font-face {
+  font-family: Billabong;
+  src: url(./assets/fonts/FontsFree-Net-Billabong.ttf);
+}
+:root{
+  --bg-green: #00A695;
+  --bg-main: #1E1E20;
+  --dark-font: #fff9;
+  --border-main: #fff3;
+  --shadow-outset: -2px -2px 5px rgba(255, 255, 255, 0.07),
+                    2px 2px 6px rgba(0, 0, 0, 0.5);
+  --shadow-inset: inset -2px -2px 5px rgba(255, 255, 255, 0.07),
+                  inset 2px 2px 6px rgba(0, 0, 0, 0.5)
+
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+body * {
+  font-family: "Montserrat";
+}
+body{
+  background-color: #1E1E20;
+}
+.container{
+  max-width: 1440px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 0 auto;
+}
+a{
+  text-decoration: none;
+}
+li{
+  list-style: none;
+}
+input, button, textarea{
+  outline: none;
+}
