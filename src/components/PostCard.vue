@@ -69,7 +69,7 @@ export default {
                     theme: 'dark'
                 })
             } else {
-                this.$store.dispatch('likePost', post.id)
+                this.$store.dispatch('likePost', this.post.id)
             }
         }
     }
