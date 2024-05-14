@@ -88,7 +88,7 @@ export default {
                     type: 'warning'
                 })
             } else {
-                $eventBus.$emit('createModalOpened', true)
+                this.$eventBus.$emit('createModalOpened', true)
             }
         }
     },
