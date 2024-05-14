@@ -26,8 +26,8 @@
                     <span @click="passVisible = !passVisible">{{ !passVisible ? '🙈' : '🙉' }}</span>
                 </div>
                 <div class="pass">
-                    <label for="">Confirm password</label>
-                    <input v-model="confirmPassword" :type="!confPassVisible ? 'password' : 'text'" name="" id="">
+                    <label for="confPass">Confirm password</label>
+                    <input v-model="confirmPassword" :type="!confPassVisible ? 'password' : 'text'" name="" id="confPass">
                     <span @click="confPassVisible = !confPassVisible">{{ !confPassVisible ? '🙈' : '🙉' }}</span>
                 </div>
                 <div class="file__upload"
