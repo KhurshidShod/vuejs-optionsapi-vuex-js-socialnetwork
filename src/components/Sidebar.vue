@@ -1,5 +1,5 @@
 <template>
-    <header :class="{navOpen: isNavbarOpened}">
+    <header :class="{ navOpen: isNavbarOpened }">
         <nav class="nav">
             <div class="nav__wrapper">
                 <font-awesome-icon @click="isNavbarOpened = !isNavbarOpened" icon="fa-solid fa-bars-staggered " />
@@ -93,32 +93,47 @@ header {
     padding: 1.5rem;
     background-color: var(--bg-main);
     border-right: 1px solid var(--bg-green);
+    z-index: 9;
+
+    @media (max-width: 550px) {
+        padding: 0.5rem;
+    }
 
     @media (max-width: 1180px) {
         width: 75px;
-        &.navOpen{
+
+        &.navOpen {
             width: 350px;
-            .nav{
-                &__wrapper{
+
+            .nav {
+                &__wrapper {
                     justify-content: start;
                 }
-                &__menu{
-                    ul{
-                        li{
-                            &::before{
+
+                &__menu {
+                    ul {
+                        li {
+                            &::before {
                                 display: flex;
                             }
-                            a,p{
+
+                            a,
+                            p {
                                 visibility: visible;
                             }
                         }
                     }
                 }
-                &__search{
+
+                &__search {
                     display: flex;
                 }
             }
         }
+    }
+
+    @media (max-width: 550px) {
+        width: 50px;
     }
 
     .nav {
@@ -137,6 +152,11 @@ header {
                 width: 100%;
                 justify-content: center;
                 align-items: center;
+
+                @media (max-width: 550px) {
+                    margin-top: 1.2rem;
+                }
+
                 svg {
                     font-size: 32px;
                     color: white;
@@ -248,15 +268,30 @@ header {
                         display: flex;
                         justify-content: center;
                         align-items: center;
+
                         @media (max-width: 1180px) {
                             visibility: hidden;
                         }
-                        img{
+
+                        img {
                             margin-right: 1rem;
+
+                            @media (max-width: 550px) {
+                                margin-left: 0;
+                            }
+
+                            @media (max-width: 1180px) {
+                                visibility: visible !important;
+                            }
                         }
+
                         svg {
                             margin-right: 1rem;
                             font-size: 26px;
+
+                            @media (max-width: 550px) {
+                                margin-left: 0;
+                            }
 
                             @media (max-width: 1180px) {
                                 visibility: visible !important;

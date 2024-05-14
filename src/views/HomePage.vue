@@ -7,7 +7,7 @@
                     <PostCard v-for="post in $store.state.posts" :post="post" :key="post.id" />
                 </div>
                 <div class="comments">
-
+                    <p></p>
                 </div>
             </section>
             <Teleport v-if="isCreateModalOpen" to="body">
@@ -61,8 +61,6 @@ main {
 
     section {
         width: 100%;
-        height: 100vh;
-        overflow: auto;
         display: flex;
         justify-content: center;
         align-items: start;
@@ -81,10 +79,16 @@ main {
             flex-direction: column;
             gap: 1rem;
             padding-top: 2rem;
+            padding-bottom: 2rem;
+            flex-grow: 1;
 
             @media (max-width: 1180px) {
                 width: calc(100% - 425px);
                 margin-left: 75px;
+            }
+
+            @media (max-width: 550px) {
+                margin-left: 50px;
             }
         }
 
