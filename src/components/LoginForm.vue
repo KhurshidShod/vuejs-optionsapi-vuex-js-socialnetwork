@@ -4,12 +4,12 @@
             <h1>Login</h1>
             <form action="" @submit.prevent="handleLoginFunction">
                 <div>
-                    <label for="">Username</label>
-                    <input v-model="loginUser.username" type="text" name="" id="">
+                    <label for="username">Username</label>
+                    <input v-model="loginUserData.username" type="text" name="" id="username">
                 </div>
                 <div>
-                    <label for="">Password</label>
-                    <input v-model="loginUser.password" :type="!passVisible ? 'password' : 'text'" name="" id="">
+                    <label for="password">Password</label>
+                    <input v-model="loginUserData.password" :type="!passVisible ? 'password' : 'text'" name="" id="password">
                     <span @click="passVisible = !passVisible">{{ !passVisible ? '🙈' : '🙉' }}</span>
                 </div>
                 <button>Login</button>
@@ -21,13 +21,12 @@
 
 <script>
 import { toast } from 'vue3-toastify';
-import { mapActions, mapState } from 'vuex/dist/vuex.cjs.js';
-
+import { mapActions, mapMutations, mapState } from 'vuex/dist/vuex.cjs.js';
 export default {
     data() {
         return {
             passVisible: false,
-            loginUser: {
+            loginUserData: {
                 username: '',
                 password: ''
             },
@@ -35,30 +34,32 @@ export default {
     },
     computed: {
         ...mapState([
-            'users'
+            'users',
         ])
     },
     methods: {
+        ...mapMutations(['loginUser']),
         handleLoginFunction() {
-            const loggingUser = this.users.find(user => user.username === this.loginUser.username)
+            const loggingUser = this.users.find(user => user.username === this.loginUserData.username)
             console.log(loggingUser)
             if (loggingUser) {
-                if (loggingUser.password === this.loginUser.password) {
+                if (loggingUser.password === this.loginUserData.password) {
                     localStorage.setItem("user", JSON.stringify(loggingUser))
                     this.$router.push('/')
-                    this.loggingUser.username = ""
-                    this.loggingUser.password = ""
                     toast('Logged in successfully', {
                         autoClose: 1000,
                         theme: "dark",
                         type: "success",
                     })
+                    this.loginUser(loggingUser)
                 } else {
                     toast('Password is incorrect', {
                         autoClose: 1000,
                         theme: "dark",
                         type: "error",
                     })
+                    this.loggingUser.username = ""
+                    this.loggingUser.password = ""
                 }
             } else {
                 toast('No such user found', {

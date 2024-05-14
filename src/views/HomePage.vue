@@ -1,8 +1,8 @@
 <template>
     <main>
         <div class="container">
-            <section>
-                <Header />
+            <Header />
+            <section class="wrapper">
                 <div class="posts">
                     <PostCard v-for="post in $store.state.posts" :post="post" :key="post.id" />
                 </div>
@@ -25,6 +25,9 @@ import Header from '../components/Sidebar.vue';
 import PostCard from '../components/PostCard.vue'
 import CreatePost from './../components/CreatePost.vue'
 export default {
+    created(){
+        this.$eventBus.$on('createModalOpened', (data) => this.isCreateModalOpen = data)
+    },
     data() {
         return {
             isCreateModalOpen: false
@@ -81,6 +84,7 @@ main {
             padding-top: 2rem;
             padding-bottom: 2rem;
             flex-grow: 1;
+            overflow: auto;
 
             @media (max-width: 1180px) {
                 width: calc(100% - 425px);

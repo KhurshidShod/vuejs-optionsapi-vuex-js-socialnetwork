@@ -1,8 +1,5 @@
 import { createStore } from "vuex";
 import db from "../assets/firebase/init.js";
-const user = localStorage.getItem("user")
-  ? JSON.parse(localStorage.getItem("user"))
-  : null;
 import {
   collection,
   getDocs,
@@ -19,22 +16,33 @@ export default createStore({
   state: {
     users: [],
     posts: [],
+    user: null,
   },
   modules: {},
   mutations: {
     setUsers(state, usersData) {
-      usersData.forEach((user) => state.users.push(user.data()));
+      const loggedInUser = localStorage.getItem("user");
+      usersData.forEach((user) => {
+        state.users.push(user.data());
+      });
+      if (loggedInUser) {
+        usersData.forEach((user) => {
+          if (user.data().id === JSON.parse(loggedInUser).id) {
+            state.user = user.data();
+          }
+        });
+      }
     },
     setPosts(state, postsData) {
+      state.posts = []
       postsData.forEach((post) => {
         state.posts.push({ ...post.data(), id: post.id });
       });
-      console.log(state.posts)
     },
     likePost(state, postId) {
       state.posts = state.posts.map((post) => {
         if (post.id === postId) {
-          post.likes.push(user.id);
+          post.likes.push(state.user.id);
         }
         return post;
       });
@@ -47,6 +55,12 @@ export default createStore({
         return post;
       });
     },
+    createNewUser(state, newUser) {
+      state.user = newUser;
+    },
+    loginUser(state, user){
+      state.user = user
+    }
   },
   actions: {
     async getUsers({ commit }) {
@@ -58,22 +72,22 @@ export default createStore({
       commit("setPosts", querySnapshot);
     },
     async createNewUser({ commit }, newUser) {
-      console.log(newUser + '--------->asdasdasd')
       localStorage.setItem("user", JSON.stringify(newUser));
       const docRef = await addDoc(collection(db, "users"), newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
       router.push("/");
+      commit("createNewUser", newUser);
     },
     async likePost({ commit, dispatch }, postId) {
       const updatingRef = doc(db, "posts", postId);
       if (
         this.state.posts
           .find((post) => post.id === postId)
-          .likes.includes(user.id)
+          .likes.includes(this.state.user.id)
       ) {
         commit("dislikePost", postId);
         await updateDoc(updatingRef, {
-          likes: arrayRemove(user.id),
+          likes: arrayRemove(this.state.user.id),
         }).catch((err) => {
           console.log(err);
           commit("likePost", postId);
@@ -85,7 +99,7 @@ export default createStore({
       } else {
         commit("likePost", postId);
         await updateDoc(updatingRef, {
-          likes: arrayUnion(user.id),
+          likes: arrayUnion(this.state.user.id),
         }).catch((err) => {
           console.log(err);
           commit("dislikePost", postId);
@@ -96,9 +110,9 @@ export default createStore({
         });
       }
     },
-    async createNewPost({ commit }, newPost) {
-      console.log(newPost + '--------->asdasdasd')
+    async createNewPost({ commit,dispatch }, newPost) {
       const docRef = await addDoc(collection(db, "posts"), newPost);
+      dispatch('getPosts')
     },
   },
 });

@@ -4,19 +4,16 @@
 
         </div>
         <div class="post__image">
-            <swiper
-            :allow-touch-move="false"
-            :auto-play="false"
-            class="swiper" :modules="modules" :pagination="{ clickable: true }">
+            <swiper :allow-touch-move="false" :auto-play="false" class="swiper" :modules="modules"
+                :pagination="{ clickable: true }">
                 <swiper-slide class="slide" v-for="image in post.images" :key="image">
-                  <img width="100%" height="100%" :src="image" alt="">  
+                    <img width="100%" height="100%" :src="image" alt="">
                 </swiper-slide>
             </swiper>
         </div>
         <div class="post__stats">
             <div class="post__stats_actions">
-                <font-awesome-icon :class="{ likedPost: isLiked }" @click="$store.dispatch('likePost', post.id)"
-                    icon="fa-solid fa-heart" />
+                <font-awesome-icon :class="{ likedPost: isLiked }" @click="likePost" icon="fa-solid fa-heart" />
                 <font-awesome-icon icon="fa-solid fa-comment" />
                 <font-awesome-icon icon="fa-solid fa-share" />
             </div>
@@ -25,10 +22,11 @@
             </div>
         </div>
         <div class="post__content">
-            <b>@{{ $store.state.users.find(usr => usr.id === post.userId).username }}</b>
+
             <div>
-                <p>{{ (post.content.split(" ").length > 24 && noClampTextId !== post.id) ?
-                    post.content.split("").slice(0, 27).join(" ") + '...' : post.content }} </p>
+                <p><b>@{{ $store.state.users.find(usr => usr.id === post.userId).username }}</b> {{
+                    (post.content.split(" ").length > 24 && noClampTextId !== post.id) ?
+                        post.content.split("").slice(0, 27).join("") + ' ...' : post.content }} </p>
                 <button @click="noClampTextId = post.id"
                     v-if="post.content.split(' ').length > 24 && noClampTextId === null">more</button>
                 <button @click="noClampTextId = null" v-if="noClampTextId !== null">less</button>
@@ -40,9 +38,10 @@
 <script>
 import { mapState } from 'vuex/dist/vuex.cjs.js';
 import SwiperClass, { Pagination } from 'swiper'
-import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
+import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
+import { toast } from 'vue3-toastify';
 
 export default {
     props: ['post'],
@@ -57,8 +56,21 @@ export default {
         }
     },
     computed: {
+        ...mapState(['user']),
         isLiked() {
-            return (localStorage.getItem('user') && this.post.likes.includes(JSON.parse(localStorage.getItem('user')).id)) ? true : false;
+            return (localStorage.getItem('user') && this.post.likes.includes(this.user.id)) ? true : false;
+        }
+    },
+    methods: {
+        likePost() {
+            if (this.user === null) {
+                toast("You have to login first", {
+                    type: 'warning',
+                    theme: 'dark'
+                })
+            } else {
+                $store.dispatch('likePost', post.id)
+            }
         }
     }
 }
@@ -90,10 +102,12 @@ export default {
         @media (max-width: 500px) {
             max-height: 300px;
         }
-        .swiper{
+
+        .swiper {
             width: 100%;
             height: 300px !important;
         }
+
         image {
             width: 100% !important;
             height: 100% !important;
@@ -133,11 +147,7 @@ export default {
     }
 
     &__content {
-        padding: 0.5rem;
-
-        b {
-            font-size: 14px;
-        }
+        padding: 0 0.5rem 0.5rem 0.5rem;
 
         div {
             display: flex;
@@ -145,7 +155,11 @@ export default {
 
             p {
                 font-size: 14px;
-                margin-top: 0.5rem;
+
+                b {
+                    font-size: 14px;
+                    margin-right: .5rem;
+                }
             }
 
             button {
@@ -155,6 +169,7 @@ export default {
                 background-color: transparent;
                 font-size: 14px;
                 border: none;
+                margin-left: 5px;
             }
         }
     }

@@ -27,7 +27,7 @@
                 </div>
                 <div class="pass">
                     <label for="">Confirm password</label>
-                    <input :type="!confPassVisible ? 'password' : 'text'" name="" id="">
+                    <input v-model="confirmPassword" :type="!confPassVisible ? 'password' : 'text'" name="" id="">
                     <span @click="confPassVisible = !confPassVisible">{{ !confPassVisible ? '🙈' : '🙉' }}</span>
                 </div>
                 <div class="file__upload"
@@ -52,11 +52,12 @@
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { toast } from 'vue3-toastify';
 import { mapActions } from 'vuex';
+import { mapState } from 'vuex/dist/vuex.cjs.js';
 export default {
     data() {
         return {
             newUser: {
-                id: Date.now(),
+                id: Date.now().toString(),
                 fullName: '',
                 email: '',
                 username: '',
@@ -64,28 +65,91 @@ export default {
                 password: '',
                 image: ''
             },
+            confirmPassword: '',
             activeDropZone: false,
             passVisible: false,
             confPassVisible: false,
             imageFile: null
         }
     },
+    computed: {
+        ...mapState(['users'])
+    },
     methods: {
         ...mapActions([
             'createNewUser'
         ]),
         async handleRegisterFunction() {
-            const storage = getStorage();
-            const storageRef = ref(storage, this.imageFile.name);
-            await uploadBytes(storageRef, this.imageFile).then(snapshot => console.log(snapshot))
-            await getDownloadURL(ref(storage, this.imageFile.name)).then(res => this.newUser.image = res)
-            console.log(this.newUser.image)
-            this.createNewUser(this.newUser)
-            toast("You have been registered successfully", {
-                autoClose: 1000,
-                theme: "dark",
-                type: "success",
-            });
+            console.log(this.posts)
+            const existEmail = this.users.find(post => post.email === this.newUser.email);
+            const existUsername = this.users.find(post => post.username === this.newUser.username);
+            const existPassword = this.users.find(post => post.password === this.newUser.password);
+            const existPhoneNumber = this.users.find(post => post.phoneNumber === this.newUser.phoneNumber);
+            console.log(existEmail, existPassword, existUsername)
+            if (
+                this.newUser.fullName.trim() === ''
+                || this.newUser.username.trim() === ''
+                || this.newUser.phoneNumber.trim() === ''
+                || this.newUser.password.trim() === ''
+                || this.newUser.email.trim() === ''
+                || this.imageFile === null
+            ) {
+                toast("Please, fill all the fields!", {
+                    autoClose: 1000,
+                    theme: "dark",
+                    type: "warning",
+                });
+                return;
+            } else if (this.newUser.password !== this.confirmPassword) {
+                toast("Password and confirmation don't match", {
+                    autoClose: 1000,
+                    theme: "dark",
+                    type: "warning",
+                });
+                return;
+            } else if (existEmail !== undefined) {
+                toast("This email is already in use", {
+                    autoClose: 1000,
+                    theme: "dark",
+                    type: "warning",
+                });
+                return;
+            } else if (existPassword !== undefined) {
+                toast("This password is not available", {
+                    autoClose: 1000,
+                    theme: "dark",
+                    type: "warning",
+                });
+                return;
+            } else if (existUsername !== undefined) {
+                toast("This username is not available", {
+                    autoClose: 1000,
+                    theme: "dark",
+                    type: "warning",
+                });
+                return;
+            } else if (existPhoneNumber !== undefined) {
+                toast("This phone number is already in use", {
+                    autoClose: 1000,
+                    theme: "dark",
+                    type: "warning",
+                });
+                return;
+            } else {
+                const storage = getStorage();
+                const storageRef = ref(storage, this.imageFile.name);
+                await uploadBytes(storageRef, this.imageFile).then(snapshot => console.log(snapshot))
+                await getDownloadURL(ref(storage, this.imageFile.name)).then(res => this.newUser.image = res)
+                console.log(this.newUser.image)
+                this.createNewUser(this.newUser)
+                toast("You have been registered successfully", {
+                    autoClose: 1000,
+                    theme: "dark",
+                    type: "success",
+                });
+
+            }
+
         },
         onFileSelect(event) {
             const files = event.target.files;

@@ -19,7 +19,7 @@
                             <font-awesome-icon icon="fa-solid fa-message " /> Messages
                         </router-link>
                     </li>
-                    <li>
+                    <li @click="openCreateModal">
                         <p><font-awesome-icon icon="fa-solid fa-circle-plus " /> Create</p>
                     </li>
                     <li v-if="isUser">
@@ -28,23 +28,24 @@
                                 width: 25px;
                                 height: 25px;
                                 border-radius: 50%;
-                            " :src="user.image" alt=""> Profile
+                            " :src="user?.image" alt=""> Profile
                         </router-link>
                     </li>
                     <li class="join_us" v-else>
-                        <router-link to="/joinus" class="join_us_btn">
-                            Join us
+                        <router-link to="/joinus">
                             <font-awesome-icon icon="fa-solid fa-right-to-bracket" />
+                            Join us
                         </router-link>
                     </li>
                 </ul>
             </div>
             <div class="nav__search">
-                <label for="">
+                <label for="search">
                     <span>
                         <font-awesome-icon icon="fa-solid fa-search" />
                     </span>
-                    <input v-model="searchText" type="text" placeholder="Let's find some friends 👀" name="" id="">
+                    <input v-model="searchText" type="text" placeholder="Let's find some friends 👀" name=""
+                        id="search">
                 </label>
                 <ul v-if="searchResultUsers" class="search_results">
                     <li v-for="user in searchResultUsers" :key="user.id">
@@ -58,37 +59,49 @@
 </template>
 
 <script>
+import { toast } from 'vue3-toastify';
 import { mapState } from 'vuex';
-
 export default {
     data() {
         return {
             isUser: localStorage.getItem("user") || false,
             searchText: '',
             isNavbarOpened: false,
-            user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null
         }
     },
     computed: {
         ...mapState([
-            'users'
+            'users',
+            'user'
         ]),
         searchResultUsers() {
             if (this.searchText.trim() !== '') {
                 return this.users.filter(user => user.fullName.toLowerCase().includes(this.searchText.toLowerCase()))
             }
         }
-    }
+    },
+    methods: {
+        openCreateModal() {
+            if (this.user === null) {
+                toast('You have to login first', {
+                    theme: 'dark',
+                    type: 'warning'
+                })
+            } else {
+                $eventBus.$emit('createModalOpened', true)
+            }
+        }
+    },
 }
 </script>
 
 <style lang="scss" scoped>
 header {
     position: fixed;
-    top: 0;
     left: 0;
+    top: 0;
     width: 350px;
-    height: 100%;
+    height: 100vh;
     backdrop-filter: blur(10px);
     padding: 1.5rem;
     background-color: var(--bg-main);
@@ -230,43 +243,18 @@ header {
                         width: 100%;
                     }
 
-                    &.join_us {
-                        margin-top: 1rem;
-
-                        &::before {
-                            display: none;
-                        }
-
-                        a.join_us_btn {
-                            width: 100%;
-                            height: 50px;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            background-color: transparent;
-                            border: none;
-                            border-radius: 5px;
-                            color: var(--bg-green);
-                            font-size: 22px;
-                            cursor: pointer;
-                            box-shadow: var(--shadow-outset);
-                            font-weight: 900;
-                            letter-spacing: 2px;
-
-                            &:hover {
-                                color: var(--bg-green);
-                                box-shadow: var(--shadow-inset);
-                            }
-                        }
+                    a {
+                        width: 100%;
+                        height: 100%;
                     }
 
                     a,
                     p {
                         font-size: 22px;
-                        font-weight: 600;
+                        font-weight: 400;
                         color: white;
                         display: flex;
-                        justify-content: center;
+                        justify-content: start;
                         align-items: center;
 
                         @media (max-width: 1180px) {

@@ -1,12 +1,15 @@
 <template>
     <div class="create_modal">
         <div class="create_modal__wrapper">
+            <button class="closeModal" @click="$eventBus.$emit('createModalOpened', false)">
+                <font-awesome-icon icon="fa-solid fa-xmark" />
+            </button>
             <h3>Create a new post</h3>
             <form action="" @submit.prevent="handleSubmitCreate">
                 <div class="content">
-                    <label for="">Content</label>
+                    <label for="content">Content</label>
                     <textarea v-model="newPost.content" name="" placeholder="Tell us more about your post"
-                        id=""></textarea>
+                        id="content"></textarea>
                 </div>
                 <div class="file__upload"
                     :class="[(activeDropZone ? 'activeDropZone' : imageFile ? 'activeDropZone' : null)]"
@@ -27,7 +30,7 @@
 
 <script>
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { mapActions } from 'vuex/dist/vuex.cjs.js';
+import { mapActions, mapState } from 'vuex/dist/vuex.cjs.js';
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -37,9 +40,12 @@ export default {
             activeDropZone: false,
             newPost: {
                 content: '',
-                images: ''
+                images: []
             }
         }
+    },
+    computed: {
+        ...mapState(['user'])
     },
     methods: {
         ...mapActions(['createNewPost']),
@@ -76,22 +82,23 @@ export default {
             const storageRef = ref(storage, this.imageFile.name);
             await uploadBytes(storageRef, this.imageFile).then(snapshot => console.log(snapshot))
             await getDownloadURL(ref(storage, this.imageFile.name)).then(res => {
-                if (this.imageFile.type.split('/')[0] !== 'video'){
-                    this.newPost.images = res + '***video'
+                if (this.imageFile.type.split('/')[0] !== 'video') {
+                    this.newPost.images.push(res)
                 } else {
-                    this.newPost.images = res
+                    this.newPost.images.push(res + '***video')
                 }
             })
             this.createNewPost({
                 ...this.newPost,
                 likes: [],
                 comments: [],
-                userId: JSON.parse(localStorage.getItem("user")).id,
+                userId: this.user.id,
             })
             toast("You have posted successfully", {
                 theme: 'dark',
                 type: 'success'
             })
+            this.$eventBus.$emit('createModalOpened', false)
         }
     },
 }
@@ -99,6 +106,7 @@ export default {
 
 <style lang="scss" scoped>
 .create_modal {
+    position: relative;
     width: 100%;
     height: 100vh;
     backdrop-filter: blur(5px);
@@ -112,6 +120,8 @@ export default {
     align-items: center;
 
     &__wrapper {
+        width: 55%;
+        position: relative;
         background-color: var(--bg-main);
         border-radius: 10px;
         display: flex;
@@ -119,6 +129,30 @@ export default {
         align-items: center;
         flex-direction: column;
         border: 1px solid var(--bg-green);
+
+        @media (max-width: 900px) {
+            width: 75%;
+        }
+
+        @media (max-width: 550px) {
+            width: 90%;
+        }
+
+        .closeModal {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 28px;
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all .2s linear;
+
+            &:hover {
+                transform: rotate(45deg);
+            }
+        }
 
         h3 {
             width: 100%;
@@ -138,9 +172,10 @@ export default {
             flex-direction: column;
             gap: 1rem;
             padding: 1.5rem;
+            width: 100%;
 
             div {
-                min-width: 450px;
+                width: 100%;
 
                 &.content {
                     display: flex;
