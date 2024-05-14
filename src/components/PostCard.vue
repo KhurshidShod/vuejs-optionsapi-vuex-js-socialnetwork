@@ -1,10 +1,17 @@
 <template>
     <div class="post">
         <div class="post__header">
-            
+
         </div>
         <div class="post__image">
-            <img :src="post.images" alt="">
+            <swiper
+            :allow-touch-move="false"
+            :auto-play="false"
+            class="swiper" :modules="modules" :pagination="{ clickable: true }">
+                <swiper-slide class="slide" v-for="image in post.images" :key="image">
+                  <img width="100%" height="100%" :src="image" alt="">  
+                </swiper-slide>
+            </swiper>
         </div>
         <div class="post__stats">
             <div class="post__stats_actions">
@@ -32,12 +39,21 @@
 
 <script>
 import { mapState } from 'vuex/dist/vuex.cjs.js';
+import SwiperClass, { Pagination } from 'swiper'
+import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
+import 'swiper/css'
+import 'swiper/css/pagination'
 
 export default {
     props: ['post'],
+    components: {
+        Swiper,
+        SwiperSlide
+    },
     data() {
         return {
             noClampTextId: null,
+            modules: [Pagination]
         }
     },
     computed: {
@@ -74,10 +90,22 @@ export default {
         @media (max-width: 500px) {
             max-height: 300px;
         }
-
-        image {
+        .swiper{
             width: 100%;
-            object-fit: cover;
+            height: 300px !important;
+        }
+        image {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            object-position: center !important;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
         }
     }
 

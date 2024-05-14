@@ -44,3 +44,6 @@ li{
 input, button, textarea{
   outline: none;
 }
+.swiper-pagination-bullet-active{
+  background-color: var(--bg-green) !important;
+}

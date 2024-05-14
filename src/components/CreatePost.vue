@@ -52,12 +52,13 @@ export default {
             this.activeDropZone = !this.activeDropZone
         },
         dropFile(event) {
-            if (event.dataTransfer.files[0].type.split('/')[0] !== 'image') {
-                toast("Only jpg, jpeg, png types are allowed", {
+            if (event.dataTransfer.files[0].type.split('/')[0] !== 'image' && event.dataTransfer.files[0].type.split('/')[0] !== 'video') {
+                toast("Only jpg, jpeg, png and mp4 types are allowed", {
                     type: 'warning',
                     theme: 'dark'
                 })
                 this.toggleActiveDropzone()
+                console.log(event.dataTransfer.files[0])
                 return;
             } else {
                 this.imageFile = event.dataTransfer.files[0];
@@ -74,7 +75,13 @@ export default {
             const storage = getStorage();
             const storageRef = ref(storage, this.imageFile.name);
             await uploadBytes(storageRef, this.imageFile).then(snapshot => console.log(snapshot))
-            await getDownloadURL(ref(storage, this.imageFile.name)).then(res => this.newPost.images = res)
+            await getDownloadURL(ref(storage, this.imageFile.name)).then(res => {
+                if (this.imageFile.type.split('/')[0] !== 'video'){
+                    this.newPost.images = res + '***video'
+                } else {
+                    this.newPost.images = res
+                }
+            })
             this.createNewPost({
                 ...this.newPost,
                 likes: [],
