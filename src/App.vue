@@ -7,10 +7,12 @@
 import { mapActions } from 'vuex/dist/vuex.cjs.js';
 import Header from './components/Sidebar.vue'
 export default {
+  components: {
+    Header
+  },
   created() {
     this.getUsers()
     this.getPosts()
-    console.log(this.posts)
   },
   methods: {
     ...mapActions([

@@ -4,6 +4,7 @@
         "fontawesome",
         "fortawesome",
         "toastification",
+        "Toastify",
         "vuex"
     ]
 }

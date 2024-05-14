@@ -10,7 +10,7 @@
 
                 </div>
             </section>
-            <Teleport to="body">
+            <Teleport v-if="isCreateModalOpen" to="body">
                 <CreatePost></CreatePost>
             </Teleport>
         </div>
@@ -25,6 +25,11 @@ import Header from '../components/Sidebar.vue';
 import PostCard from '../components/PostCard.vue'
 import CreatePost from './../components/CreatePost.vue'
 export default {
+    data() {
+        return {
+            isCreateModalOpen: false
+        }
+    },
     components: {
         Header,
         PostCard,

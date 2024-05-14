@@ -2,10 +2,11 @@
     <div class="create_modal">
         <div class="create_modal__wrapper">
             <h3>Create a new post</h3>
-            <form action="">
+            <form action="" @submit.prevent="handleSubmitCreate">
                 <div class="content">
                     <label for="">Content</label>
-                    <textarea name="" placeholder="Tell us more about your post" id=""></textarea>
+                    <textarea v-model="newPost.content" name="" placeholder="Tell us more about your post"
+                        id=""></textarea>
                 </div>
                 <div class="file__upload"
                     :class="[(activeDropZone ? 'activeDropZone' : imageFile ? 'activeDropZone' : null)]"
@@ -18,25 +19,33 @@
                     <p v-else class="activeText">Drop image here</p>
                     <input @change="selectFile" ref="fileInput" type="file" name="file" id="">
                 </div>
-                <button>Post</button>
+                <button type="submit">Post</button>
             </form>
         </div>
     </div>
 </template>
 
 <script>
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { mapActions } from 'vuex/dist/vuex.cjs.js';
+import { toast } from 'vue3-toastify';
+
 export default {
     data() {
         return {
             imageFile: null,
             activeDropZone: false,
-
+            newPost: {
+                content: '',
+                images: ''
+            }
         }
     },
     methods: {
+        ...mapActions(['createNewPost']),
         onFileSelect(event) {
             const files = event.target.files;
-            if (files.lenght === 0) return;
+            if (files.length === 0) return;
 
         },
         toggleActiveDropzone() {
@@ -45,7 +54,7 @@ export default {
         dropFile(event) {
             if (event.dataTransfer.files[0].type.split('/')[0] !== 'image') {
                 toast("Only jpg, jpeg, png types are allowed", {
-                    type: 'error',
+                    type: 'warning',
                     theme: 'dark'
                 })
                 this.toggleActiveDropzone()
@@ -59,6 +68,23 @@ export default {
         },
         selectFile(event) {
             this.imageFile = event.target.files[0]
+        },
+        async handleSubmitCreate() {
+            console.log(this.newPost)
+            const storage = getStorage();
+            const storageRef = ref(storage, this.imageFile.name);
+            await uploadBytes(storageRef, this.imageFile).then(snapshot => console.log(snapshot))
+            await getDownloadURL(ref(storage, this.imageFile.name)).then(res => this.newPost.images = res)
+            this.createNewPost({
+                ...this.newPost,
+                likes: [],
+                comments: [],
+                userId: JSON.parse(localStorage.getItem("user")).id,
+            })
+            toast("You have posted successfully", {
+                theme: 'dark',
+                type: 'success'
+            })
         }
     },
 }

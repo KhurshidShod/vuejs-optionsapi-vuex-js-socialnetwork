@@ -29,6 +29,7 @@ export default createStore({
       postsData.forEach((post) => {
         state.posts.push({ ...post.data(), id: post.id });
       });
+      console.log(state.posts)
     },
     likePost(state, postId) {
       state.posts = state.posts.map((post) => {
@@ -94,6 +95,10 @@ export default createStore({
           });
         });
       }
+    },
+    async createNewPost({ commit }, newPost) {
+      console.log(newPost + '--------->asdasdasd')
+      const docRef = await addDoc(collection(db, "posts"), newPost);
     },
   },
 });

@@ -10,7 +10,8 @@ import {
   faUser,
   faBarsStaggered,
   faHeart,
-  faComment
+  faComment,
+  faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import store from "./store/store";
@@ -26,7 +27,8 @@ library.add(
   faMessage,
   faCirclePlus,
   faUser,
-  faBarsStaggered
+  faBarsStaggered,
+  faSearch
 );
 
 createApp(App)
