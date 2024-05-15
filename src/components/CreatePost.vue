@@ -98,6 +98,12 @@ export default {
                 theme: 'dark',
                 type: 'success'
             })
+            this.$eventBus.$emit('newPostCreated', {
+                ...this.newPost,
+                likes: [],
+                comments: [],
+                userId: this.user.id,
+            })
             this.$eventBus.$emit('createModalOpened', false)
         }
     },

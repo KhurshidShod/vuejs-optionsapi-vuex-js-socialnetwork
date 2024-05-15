@@ -14,7 +14,7 @@
         <div class="post__stats">
             <div class="post__stats_actions">
                 <font-awesome-icon :class="{ likedPost: isLiked }" @click="likePost" icon="fa-solid fa-heart" />
-                <font-awesome-icon icon="fa-solid fa-comment" />
+                <font-awesome-icon @click="$emit('openFullCard', true)" icon="fa-solid fa-comment" />
                 <font-awesome-icon icon="fa-solid fa-share" />
             </div>
             <div>

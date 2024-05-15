@@ -34,7 +34,6 @@ export default createStore({
       }
     },
     setPosts(state, postsData) {
-      state.posts = []
       postsData.forEach((post) => {
         state.posts.push({ ...post.data(), id: post.id });
       });
@@ -112,7 +111,6 @@ export default createStore({
     },
     async createNewPost({ commit,dispatch }, newPost) {
       const docRef = await addDoc(collection(db, "posts"), newPost);
-      dispatch('getPosts')
     },
   },
 });

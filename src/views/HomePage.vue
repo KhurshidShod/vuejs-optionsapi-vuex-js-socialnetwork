@@ -4,7 +4,7 @@
             <Header />
             <section class="wrapper">
                 <div class="posts">
-                    <PostCard v-for="post in $store.state.posts" :post="post" :key="post.id" />
+                    <PostCard @open-full-card="fullPostCardOpen(post)" v-for="post in posts" :post="post" :key="post.id" />
                 </div>
                 <div class="comments">
                     <p></p>
@@ -12,6 +12,9 @@
             </section>
             <Teleport v-if="isCreateModalOpen" to="body">
                 <CreatePost></CreatePost>
+            </Teleport>
+            <Teleport v-if="isFullPostCardOpen" to="body">
+                <FullPostCard @close-full-post="isFullPostCardOpen = false" :post="fullPost"></FullPostCard>
             </Teleport>
         </div>
     </main>
@@ -24,19 +27,30 @@ import { mapState } from 'vuex';
 import Header from '../components/Sidebar.vue';
 import PostCard from '../components/PostCard.vue'
 import CreatePost from './../components/CreatePost.vue'
+import { defineAsyncComponent } from "vue";
+
+const FullPostCard = defineAsyncComponent(() =>
+    import('./../components/FullPostCard.vue')
+)
 export default {
-    created(){
-        this.$eventBus.$on('createModalOpened', (data) => this.isCreateModalOpen = data)
+    created() {
+        this.posts = this.$store.state.posts
+        this.$eventBus.$on('createModalOpened', (data) => this.isCreateModalOpen = data);
+        this.$eventBus.$on('newPostCreated', (newPost) => this.posts = [...this.posts, newPost])
     },
     data() {
         return {
-            isCreateModalOpen: false
+            isCreateModalOpen: false,
+            isFullPostCardOpen: false,
+            fullPost: null,
+            posts: []
         }
     },
     components: {
         Header,
         PostCard,
-        CreatePost
+        CreatePost,
+        FullPostCard
     },
     methods: {
         async addNewPost() {
@@ -48,6 +62,10 @@ export default {
                 userId: 'tzyZOmmC2dE3IWC0B9zp'
             });
             console.log("Document written with ID: ", docRef);
+        },
+        fullPostCardOpen(post) {
+            this.isFullPostCardOpen = true
+            this.fullPost = post
         }
     },
     computed: {

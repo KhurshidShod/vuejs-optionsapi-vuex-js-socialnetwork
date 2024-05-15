@@ -1,15 +1,18 @@
 <template>
     <main>
         <div class="container">
+            <Teleport v-if="isFullPostCardOpen" to="body">
+                <FullPostCard @close-full-post="isFullPostCardOpen = false" :post="fullPost"></FullPostCard>
+            </Teleport>
             <Header />
             <section>
                 <div class="profile">
                     <div class="profile__top">
                         <div class="profile__top_image">
-                            <img :src="user.image" alt="">
+                            <img :src="user?.image" alt="">
                         </div>
                         <div class="profile__top_datas_name">
-                            <h2><b>{{ user.username }}</b></h2>
+                            <h2><b>{{ user?.username }}</b></h2>
                             <button>Edit profile</button>
                         </div>
                         <div class="profile__top_datas_info">
@@ -27,8 +30,8 @@
                             </p>
                         </div>
                         <div class="profile__top_datas_bio">
-                            <i>{{ user.fullName }}</i>
-                            <p>{{ user.phoneNumber }}</p>
+                            <i>{{ user?.fullName }}</i>
+                            <p>{{ user?.phoneNumber }}</p>
                             <p>Lorem ipsum dolor sit amet.</p>
                             <button @click="handleLogout">Log out</button>
 
@@ -37,6 +40,9 @@
                     <div class="profile__posts" v-if="posts.filter(post => post.userId === user.id).length > 0">
                         <div :style="{
                             'background-image': 'url(' + post.images[0] + ')'
+                        }" @click="() => {
+                            fullPost = post;
+                            isFullPostCardOpen = true
                         }" v-for="post in posts.filter(post => post.userId === user.id)" :key="post.id"
                             class="profile__posts_post">
                             <div class="profile__posts_post_hover">
@@ -63,15 +69,23 @@
 <script>
 import { mapState } from 'vuex';
 import Header from '../components/Sidebar.vue'
+import { defineAsyncComponent } from 'vue';
+
+const FullPostCard = defineAsyncComponent(() =>
+    import('../components/FullPostCard.vue')
+)
 export default {
     components: {
-        Header
+        Header,
+        FullPostCard
     },
     computed: {
         ...mapState(['posts', 'user'])
     },
     data() {
         return {
+            isFullPostCardOpen: false,
+            fullPost: null
         }
     },
     methods: {
