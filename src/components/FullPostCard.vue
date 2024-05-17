@@ -1,6 +1,7 @@
 <template>
     <div class="fullPost">
-        <button @click="$emit('closeFullPost')" class="closeFullPost"><font-awesome-icon icon="fa-solid fa-xmark" /></button>
+        <button @click="$emit('closeFullPost')" class="closeFullPost"><font-awesome-icon
+                icon="fa-solid fa-xmark" /></button>
         <div class="fullPost__wrapper">
             <div class="fullPost__wrapper_image">
                 <swiper :allow-touch-move="false" :auto-play="false" class="swiper" :modules="modules"
@@ -12,7 +13,7 @@
             </div>
             <div class="fullPost__wrapper_comments">
                 <div class="fullPost__wrapper_comments_top">
-                    <img :src="user.image" width="35px" height="35px" alt="">
+                    <img :src="user?.image" width="35px" height="35px" alt="">
                     <b>{{ user.username }}</b>
                 </div>
                 <div class="fullPost__wrapper_comments_user">
@@ -29,8 +30,8 @@
                     </div>
                 </div>
                 <div class="send_comment">
-                    <input type="text" placeholder="Add a comment..." name="" id="">
-                    <button>Post</button>
+                    <input v-model="comment" type="text" placeholder="Add a comment..." name="" id="">
+                    <button @click="postNewComment(post.id)">Post</button>
                 </div>
             </div>
         </div>
@@ -42,8 +43,14 @@ import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
-import { mapState } from 'vuex/dist/vuex.cjs.js';
+import { mapActions, mapState } from 'vuex/dist/vuex.cjs.js';
+import { toast } from 'vue3-toastify';
 export default {
+    created(){
+        this.$eventBus.$on("newCommentCreated", (data) => {
+            this.post.comments.push(data.comment)
+        })
+    },
     props: ['post'],
     components: {
         Swiper,
@@ -52,6 +59,7 @@ export default {
     data() {
         return {
             modules: [Pagination],
+            comment: ''
         }
     },
     computed: {
@@ -61,8 +69,30 @@ export default {
         }
     },
     methods: {
+        ...mapActions(['createNewComment']),
         getCommentUser(commentId) {
             return this.users.find(usr => usr.id === commentId)
+        },
+        postNewComment(postId) {
+            const newComment = this.comment;
+            console.log(postId)
+            console.log(this.comment)
+            if (this.comment.trim() !== "") {
+                this.$store.dispatch('createNewComment', { postId, newComment });
+                this.$eventBus.$emit('newCommentCreated', {
+                    postId,
+                    comment: {
+                        text: newComment,
+                        userId: this.user.id
+                    }
+                })
+                this.comment = ""
+            } else {
+                toast('Please enter some text', {
+                    type: 'warning',
+                    theme: 'dark'
+                })
+            }
         }
     },
 }
@@ -90,6 +120,7 @@ export default {
         color: white;
         font-size: 32px;
         cursor: pointer;
+
         @media (max-width: 450px) {
             top: 5px;
             right: 5px;
@@ -118,6 +149,7 @@ export default {
             width: 55%;
             height: 100%;
             flex-grow: 1;
+            min-height: 350px;
 
             @media (max-width: 1000px) {
                 width: 100%;
@@ -140,7 +172,8 @@ export default {
             width: 50%;
             height: 100%;
             flex-grow: 1;
-
+            background-color: red;
+            overflow: auto;
             @media (max-width: 1000px) {
                 width: 100%;
             }
@@ -182,7 +215,6 @@ export default {
             &_all {
                 width: 100%;
                 height: 100%;
-                overflow: auto;
                 display: flex;
                 justify-content: start;
                 align-items: start;
@@ -190,6 +222,7 @@ export default {
                 padding: 1rem;
                 padding-top: 0;
                 gap: 10px;
+                margin-bottom: 30px;
 
                 .comment {
                     width: 100%;
@@ -209,6 +242,7 @@ export default {
                         justify-content: start;
                         align-items: center;
                         gap: 5px;
+
                         @media (max-width: 750px) {
                             flex-direction: column;
                             align-items: start;

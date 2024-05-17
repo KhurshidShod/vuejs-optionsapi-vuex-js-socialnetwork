@@ -56,10 +56,11 @@ export default createStore({
     },
     createNewUser(state, newUser) {
       state.user = newUser;
+      state.users = [...state.users, newUser]
     },
-    loginUser(state, user){
-      state.user = user
-    }
+    loginUser(state, user) {
+      state.user = user;
+    },
   },
   actions: {
     async getUsers({ commit }) {
@@ -109,8 +110,14 @@ export default createStore({
         });
       }
     },
-    async createNewPost({ commit,dispatch }, newPost) {
+    async createNewPost({ commit }, newPost) {
       const docRef = await addDoc(collection(db, "posts"), newPost);
+    },
+    async createNewComment({ commit }, postData) {
+      const updatingRef = doc(db, "posts", postData.postId);
+      await updateDoc(updatingRef, {
+        comments: arrayUnion({text: postData.newComment, userId: this.state.user.id})
+      })
     },
   },
 });

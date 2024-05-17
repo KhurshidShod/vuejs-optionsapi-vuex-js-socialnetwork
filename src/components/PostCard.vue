@@ -24,7 +24,7 @@
         <div class="post__content">
 
             <div>
-                <p><b>@{{ $store.state.users.find(usr => usr.id === post.userId).username }}</b> {{
+                <p><b>@{{ $store.state.users.find(usr => usr.id === post.userId)?.username }}</b> {{
                     (post.content.split(" ").length > 24 && noClampTextId !== post.id) ?
                         post.content.split("").slice(0, 27).join("") + ' ...' : post.content }} </p>
                 <button @click="noClampTextId = post.id"
