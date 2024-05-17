@@ -77,7 +77,7 @@ export default {
             this.imageFile = event.target.files[0]
         },
         async handleSubmitCreate() {
-            console.log(this.newPost)
+            const newPostId = Date.now().toString();
             const storage = getStorage();
             const storageRef = ref(storage, this.imageFile.name);
             await uploadBytes(storageRef, this.imageFile).then(snapshot => console.log(snapshot))
@@ -93,6 +93,7 @@ export default {
                 likes: [],
                 comments: [],
                 userId: this.user.id,
+                id: newPostId
             })
             toast("You have posted successfully", {
                 theme: 'dark',
@@ -103,6 +104,7 @@ export default {
                 likes: [],
                 comments: [],
                 userId: this.user.id,
+                id: newPostId
             })
             this.$eventBus.$emit('createModalOpened', false)
         }

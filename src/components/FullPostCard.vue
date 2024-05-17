@@ -31,7 +31,7 @@
                 </div>
                 <div class="send_comment">
                     <input v-model="comment" type="text" placeholder="Add a comment..." name="" id="">
-                    <button @click="postNewComment(post.id)">Post</button>
+                    <button @click="postNewComment">Post</button>
                 </div>
             </div>
         </div>
@@ -46,9 +46,9 @@ import 'swiper/css/pagination'
 import { mapActions, mapState } from 'vuex/dist/vuex.cjs.js';
 import { toast } from 'vue3-toastify';
 export default {
-    created(){
+    created() {
         this.$eventBus.$on("newCommentCreated", (data) => {
-            this.post.comments.push(data.comment)
+            this.post.comments.push(data)
         })
     },
     props: ['post'],
@@ -73,19 +73,17 @@ export default {
         getCommentUser(commentId) {
             return this.users.find(usr => usr.id === commentId)
         },
-        postNewComment(postId) {
+        postNewComment() {
             const newComment = this.comment;
-            console.log(postId)
+            const postId = this.post.id
             console.log(this.comment)
             if (this.comment.trim() !== "") {
                 this.$store.dispatch('createNewComment', { postId, newComment });
                 this.$eventBus.$emit('newCommentCreated', {
-                    postId,
-                    comment: {
-                        text: newComment,
-                        userId: this.user.id
-                    }
-                })
+                    text: newComment,
+                    userId: this.$store.state.user.id
+                }
+                )
                 this.comment = ""
             } else {
                 toast('Please enter some text', {
@@ -174,6 +172,7 @@ export default {
             flex-grow: 1;
             background-color: red;
             overflow: auto;
+
             @media (max-width: 1000px) {
                 width: 100%;
             }

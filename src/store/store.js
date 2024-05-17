@@ -8,6 +8,7 @@ import {
   updateDoc,
   arrayUnion,
   arrayRemove,
+  setDoc,
 } from "firebase/firestore";
 import { toast } from "vue3-toastify";
 import router from "../routes/router.js";
@@ -35,7 +36,8 @@ export default createStore({
     },
     setPosts(state, postsData) {
       postsData.forEach((post) => {
-        state.posts.push({ ...post.data(), id: post.id });
+        state.posts.push({ ...post.data() });
+        console.log(state.posts)
       });
     },
     likePost(state, postId) {
@@ -45,6 +47,9 @@ export default createStore({
         }
         return post;
       });
+    },
+    createNewPost(state, newPost) {
+      state.posts = [...state.posts, newPost];
     },
     dislikePost(state, postId) {
       state.posts = state.posts.map((post) => {
@@ -56,7 +61,7 @@ export default createStore({
     },
     createNewUser(state, newUser) {
       state.user = newUser;
-      state.users = [...state.users, newUser]
+      state.users = [...state.users, newUser];
     },
     loginUser(state, user) {
       state.user = user;
@@ -111,13 +116,19 @@ export default createStore({
       }
     },
     async createNewPost({ commit }, newPost) {
-      const docRef = await addDoc(collection(db, "posts"), newPost);
+      const docRef = await setDoc(doc(db, "posts", newPost.id), newPost);
+      commit("createNewPost", newPost);
     },
     async createNewComment({ commit }, postData) {
+      console.log(postData);
+      console.log(postData.postId)
       const updatingRef = doc(db, "posts", postData.postId);
       await updateDoc(updatingRef, {
-        comments: arrayUnion({text: postData.newComment, userId: this.state.user.id})
-      })
+        comments: arrayUnion({
+          text: postData.newComment,
+          userId: this.state.user.id,
+        }),
+      });
     },
   },
 });

@@ -4,7 +4,8 @@
             <Header />
             <section class="wrapper">
                 <div class="posts">
-                    <PostCard @open-full-card="fullPostCardOpen(post)" v-for="post in posts" :post="post" :key="post.id" />
+                    <PostCard @open-full-card="fullPostCardOpen(post)" v-for="post in allPosts" :post="post"
+                        :key="post.id" />
                 </div>
                 <div class="comments">
                     <p></p>
@@ -34,16 +35,16 @@ const FullPostCard = defineAsyncComponent(() =>
 )
 export default {
     created() {
-        this.posts = this.$store.state.posts
+        this.allPosts = this.$store.state.posts
         this.$eventBus.$on('createModalOpened', (data) => this.isCreateModalOpen = data);
-        this.$eventBus.$on('newPostCreated', (newPost) => this.posts = [...this.posts, newPost])
+        this.$eventBus.$on('newPostCreated', (newPost) => this.allPosts = [...this.posts, newPost])
     },
     data() {
         return {
             isCreateModalOpen: false,
             isFullPostCardOpen: false,
             fullPost: null,
-            posts: []
+            allPosts: []
         }
     },
     components: {
