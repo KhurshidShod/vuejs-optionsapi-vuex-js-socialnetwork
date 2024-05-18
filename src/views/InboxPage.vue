@@ -67,7 +67,7 @@ const returnMessageUser = (id) => {
 }
 const joinRoom = (msg) => {
     selectedChat.msgContent = msg;
-    roomName.value = msg.roomId
+    roomName.value = `${msg.messageContents[0].sender}-${msg.messageContents[0].text}`
     socket.emit('join-room', roomName.value)
     socket.on("message:received", data => {
         selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(data)
