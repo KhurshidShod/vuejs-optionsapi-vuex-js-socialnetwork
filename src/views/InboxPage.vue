@@ -86,15 +86,14 @@ const joinRoom = (msg) => {
     })
 }
 const addMessage = () => {
-    console.log(selectedChat.msgContent)
     const newMessage = {
         sender: store.state.user.id,
         text: newMessageText.value
     }
     selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(newMessage)
     socket.emit('message', { message: newMessage, room: roomName.value })
-    console.log(selectedChat.msgContent)
     newMessageText.value = ''
+    store.dispatch('sendMessage', {newMessage, userId: returnMessageUser(selectedChat.msgContent.userId).id})
 }
 // import { text } from '@fortawesome/fontawesome-svg-core';
 // import { io } from 'socket.io-client';

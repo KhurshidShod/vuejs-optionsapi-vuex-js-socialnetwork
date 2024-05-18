@@ -9,6 +9,7 @@ import {
   arrayUnion,
   arrayRemove,
   setDoc,
+  getDoc,
 } from "firebase/firestore";
 import { toast } from "vue3-toastify";
 import router from "../routes/router.js";
@@ -35,8 +36,8 @@ export default createStore({
         });
       }
     },
-    changeLoadingState(state, loading){
-      state.createPostLoading = loading
+    changeLoadingState(state, loading) {
+      state.createPostLoading = loading;
     },
     setPosts(state, postsData) {
       postsData.forEach((post) => {
@@ -120,7 +121,7 @@ export default createStore({
     },
     async createNewPost({ commit }, newPost) {
       const docRef = await setDoc(doc(db, "posts", newPost.id), newPost);
-      commit("createNewPost", newPost)
+      commit("createNewPost", newPost);
     },
     async createNewComment({ commit }, postData) {
       const updatingRef = doc(db, "posts", postData.postId);
@@ -131,8 +132,21 @@ export default createStore({
         }),
       });
     },
-    async sendMessage({commit}, newMessage){
-      
-    }
+    async sendMessage({ commit }, data) {
+      var changingData = null;
+      const updatingRef = doc(db, "users", this.state.user.id);
+      const docRef = doc(db, "users", this.state.user.id);
+      const docSnap = await getDoc(docRef);
+      console.log(docSnap.data())
+      changingData = docSnap.data().messages.map(msg => {
+        if(msg.userId === data.userId){
+          msg.messageContents = msg.messageContents.concat(data.newMessage)
+        }
+        return msg
+      })
+      await updateDoc(updatingRef, {
+        messages: changingData
+      });
+    },
   },
 });
