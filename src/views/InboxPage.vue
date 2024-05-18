@@ -57,11 +57,9 @@
 
 <script setup>
 import { io } from 'socket.io-client';
-import { computed, onMounted, onUpdated, reactive, ref } from 'vue';
+import { computed, onUpdated, reactive, ref } from 'vue';
 import Header from '../components/Sidebar.vue';
 import { useStore } from 'vuex';
-import { collection, getDocs } from 'firebase/firestore';
-import db from '../assets/firebase/init';
 
 const store = useStore()
 const selectedChat = reactive({ msgContent: null })
