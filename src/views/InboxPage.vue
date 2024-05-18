@@ -59,7 +59,7 @@ import { useStore } from 'vuex';
 
 const store = useStore()
 const selectedChat = reactive({ msgContent: null })
-const socket = io('http://localhost:3000');
+const socket = io('https://peaceful-commitment-production.up.railway.app/');
 const newMessageText = defineModel({ type: String })
 const roomName = ref('')
 const returnMessageUser = (id) => {
