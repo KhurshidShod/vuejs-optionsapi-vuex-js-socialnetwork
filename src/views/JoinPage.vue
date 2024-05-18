@@ -18,7 +18,6 @@ export default {
     methods: {
         handleCheckUserStatus(stat) {
             this.notRegisteredYet = stat;
-            console.log(stat)
         }
     }
 }

@@ -37,7 +37,7 @@
 
 <script>
 import { mapState } from 'vuex/dist/vuex.cjs.js';
-import SwiperClass, { Pagination } from 'swiper'
+import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'

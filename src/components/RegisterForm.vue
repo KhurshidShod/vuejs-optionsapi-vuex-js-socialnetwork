@@ -80,12 +80,9 @@ export default {
             'createNewUser'
         ]),
         async handleRegisterFunction() {
-            console.log(this.posts)
             const existEmail = this.users.find(post => post.email === this.newUser.email);
             const existUsername = this.users.find(post => post.username === this.newUser.username);
-            const existPassword = this.users.find(post => post.password === this.newUser.password);
             const existPhoneNumber = this.users.find(post => post.phoneNumber === this.newUser.phoneNumber);
-            console.log(existEmail, existPassword, existUsername)
             if (
                 this.newUser.fullName.trim() === ''
                 || this.newUser.username.trim() === ''
@@ -114,13 +111,6 @@ export default {
                     type: "warning",
                 });
                 return;
-            } else if (existPassword !== undefined) {
-                toast("This password is not available", {
-                    autoClose: 1000,
-                    theme: "dark",
-                    type: "warning",
-                });
-                return;
             } else if (existUsername !== undefined) {
                 toast("This username is not available", {
                     autoClose: 1000,
@@ -140,7 +130,6 @@ export default {
                 const storageRef = ref(storage, this.imageFile.name);
                 await uploadBytes(storageRef, this.imageFile).then(snapshot => console.log(snapshot))
                 await getDownloadURL(ref(storage, this.imageFile.name)).then(res => this.newUser.image = res)
-                console.log(this.newUser.image)
                 this.createNewUser(this.newUser)
                 toast("You have been registered successfully", {
                     autoClose: 1000,

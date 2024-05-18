@@ -66,34 +66,28 @@
     </main>
 </template>
 
-<script>
-import { mapState } from 'vuex';
+<script setup>
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router'
 import Header from '../components/Sidebar.vue'
-import { defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, defineComponent, ref } from 'vue';
 
 const FullPostCard = defineAsyncComponent(() =>
     import('../components/FullPostCard.vue')
 )
-export default {
-    components: {
-        Header,
-        FullPostCard
-    },
-    computed: {
-        ...mapState(['posts', 'user'])
-    },
-    data() {
-        return {
-            isFullPostCardOpen: false,
-            fullPost: null
-        }
-    },
-    methods: {
-        handleLogout() {
-            localStorage.removeItem("user");
-            this.$router.push('/')
-        }
-    }
+
+const store = useStore()
+const router = useRouter()
+
+const posts = computed(() => store.state.posts)
+const user = computed(() => store.state.user)
+
+const fullPost = ref(null);
+const isFullPostCardOpen = ref(false);
+
+const handleLogout = () => {
+    localStorage.removeItem("user");
+    router.push('/')
 }
 </script>
 

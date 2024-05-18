@@ -41,7 +41,6 @@ export default {
         ...mapMutations(['loginUser']),
         handleLoginFunction() {
             const loggingUser = this.users.find(user => user.username === this.loginUserData.username)
-            console.log(loggingUser)
             if (loggingUser) {
                 if (loggingUser.password === this.loginUserData.password) {
                     localStorage.setItem("user", JSON.stringify(loggingUser))

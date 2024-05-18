@@ -4,7 +4,7 @@
             <Header />
             <section class="wrapper">
                 <div class="posts">
-                    <PostCard @open-full-card="fullPostCardOpen(post)" v-for="post in allPosts" :post="post"
+                    <PostCard @open-full-card="fullPostCardOpen(post)" v-for="post in posts" :post="post"
                         :key="post.id" />
                 </div>
                 <div class="comments">
@@ -35,7 +35,7 @@ const FullPostCard = defineAsyncComponent(() =>
 )
 export default {
     created() {
-        this.allPosts = this.$store.state.posts
+        this.allPosts = this.posts;
         this.$eventBus.$on('createModalOpened', (data) => this.isCreateModalOpen = data);
         this.$eventBus.$on('newPostCreated', (newPost) => this.allPosts = [...this.posts, newPost])
     },
@@ -62,7 +62,6 @@ export default {
                 images: 'https://firebasestorage.googleapis.com/v0/b/vue-social-media-601fa.appspot.com/o/Groovy%20Greens.jpeg?alt=media&token=9fefde0c-512e-4a23-b703-de121fe1df98',
                 userId: 'tzyZOmmC2dE3IWC0B9zp'
             });
-            console.log("Document written with ID: ", docRef);
         },
         fullPostCardOpen(post) {
             this.isFullPostCardOpen = true

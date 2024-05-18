@@ -17,6 +17,7 @@
     "axios": "^1.6.8",
     "firebase": "^10.11.1",
     "roboto-fontface": "*",
+    "socket.io-client": "^4.7.5",
     "swiper": "^8.4.7",
     "vue": "^3.4.21",
     "vue-awesome-swiper": "^5.0.1",

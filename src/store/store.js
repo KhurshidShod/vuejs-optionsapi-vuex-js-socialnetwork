@@ -18,6 +18,7 @@ export default createStore({
     users: [],
     posts: [],
     user: null,
+    createPostLoading: false,
   },
   modules: {},
   mutations: {
@@ -34,10 +35,12 @@ export default createStore({
         });
       }
     },
+    changeLoadingState(state, loading){
+      state.createPostLoading = loading
+    },
     setPosts(state, postsData) {
       postsData.forEach((post) => {
         state.posts.push({ ...post.data() });
-        console.log(state.posts)
       });
     },
     likePost(state, postId) {
@@ -83,7 +86,7 @@ export default createStore({
       router.push("/");
       commit("createNewUser", newUser);
     },
-    async likePost({ commit, dispatch }, postId) {
+    async likePost({ commit }, postId) {
       const updatingRef = doc(db, "posts", postId);
       if (
         this.state.posts
@@ -117,11 +120,9 @@ export default createStore({
     },
     async createNewPost({ commit }, newPost) {
       const docRef = await setDoc(doc(db, "posts", newPost.id), newPost);
-      commit("createNewPost", newPost);
+      commit("createNewPost", newPost)
     },
     async createNewComment({ commit }, postData) {
-      console.log(postData);
-      console.log(postData.postId)
       const updatingRef = doc(db, "posts", postData.postId);
       await updateDoc(updatingRef, {
         comments: arrayUnion({
