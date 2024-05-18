@@ -11,7 +11,7 @@
                         </div>
                     </div>
                     <div class="messages__contents" v-if="selectedChat.msgContent">
-                        <div class="messages__contents_messages">
+                        <div class="messages__contents_messages" ref="scrollBottomRef">
                             <div :class="{ myMessages: chat.sender === $store.state.user.id }"
                                 v-for="chat in selectedChat.msgContent.messageContents" :key="chat">
                                 <img :src="returnMessageUser(chat.sender).image" width="35px" height="35px" alt="">
@@ -53,7 +53,7 @@
 
 <script setup>
 import { io } from 'socket.io-client';
-import { reactive, ref } from 'vue';
+import { onMounted, onUpdated, reactive, ref } from 'vue';
 import Header from '../components/Sidebar.vue';
 import { useStore } from 'vuex';
 
@@ -62,10 +62,22 @@ const selectedChat = reactive({ msgContent: null })
 const socket = io('https://peaceful-commitment-production.up.railway.app/');
 const newMessageText = defineModel({ type: String })
 const roomName = ref('')
+const scrollBottomRef = ref(null)
+onUpdated(() => {
+    scrollToBottom();
+})
+const scrollToBottom = () => {
+    const scrollHeight = scrollBottomRef.value?.scrollHeight;
+    if (scrollBottomRef.value) {
+        scrollBottomRef.value.scrollTop = scrollHeight
+        console.log(scrollBottomRef.value.scrollTop)
+    }
+}
 const returnMessageUser = (id) => {
     return store.state.users.find(usr => usr.id === id)
-}
+};
 const joinRoom = (msg) => {
+    scrollToBottom()
     selectedChat.msgContent = msg;
     roomName.value = `${msg.messageContents[0].sender}-${msg.messageContents[0].text}`
     socket.emit('join-room', roomName.value)
@@ -233,7 +245,6 @@ main {
                     flex-direction: column;
                     padding: 10px;
                     max-height: calc(100vh - 50px);
-                    background-color: red;
                     overflow: auto;
                     padding-bottom: 2rem;
 
