@@ -5,9 +5,13 @@
             <section class="message__wrapper">
                 <div class="messages">
                     <div class="messages__users">
-                        <div @click="joinRoom(msg)" v-for="msg in $store.state.user?.messages" :key="msg.userId">
-                            <img :src="returnMessageUser(msg.userId).image" width="35px" height="35px" alt="">
-                            <p>{{ returnMessageUser(msg.userId).username }}</p>
+                        <div @click="() => {
+                            joinRoom(msg)
+                        }" v-for="msg in allMessages" :key="msg.userId">
+                            <img :src="returnMessageUser(msg.chatters.find(id => id !== $store.state.user.id)).image"
+                                width="35px" height="35px" alt="">
+                            <p>{{ returnMessageUser(msg.chatters.find(id => id !== $store.state.user.id)).username }}
+                            </p>
                         </div>
                     </div>
                     <div class="messages__contents" v-if="selectedChat.msgContent">
@@ -53,9 +57,11 @@
 
 <script setup>
 import { io } from 'socket.io-client';
-import { onMounted, onUpdated, reactive, ref } from 'vue';
+import { computed, onMounted, onUpdated, reactive, ref } from 'vue';
 import Header from '../components/Sidebar.vue';
 import { useStore } from 'vuex';
+import { collection, getDocs } from 'firebase/firestore';
+import db from '../assets/firebase/init';
 
 const store = useStore()
 const selectedChat = reactive({ msgContent: null })
@@ -63,25 +69,30 @@ const socket = io('https://peaceful-commitment-production.up.railway.app/');
 const newMessageText = defineModel({ type: String })
 const roomName = ref('')
 const scrollBottomRef = ref(null)
+const messages = computed(() => {
+    return store.state?.messages.filter(msg => msg.chatters.includes(store.state.user.id))
+})
+const allMessages = messages;
 onUpdated(() => {
     scrollToBottom();
+    store.dispatch('getMessages')
 })
+
 const scrollToBottom = () => {
     const scrollHeight = scrollBottomRef.value?.scrollHeight;
     if (scrollBottomRef.value) {
         scrollBottomRef.value.scrollTop = scrollHeight
-        console.log(scrollBottomRef.value.scrollTop)
     }
 }
 const returnMessageUser = (id) => {
     return store.state.users.find(usr => usr.id === id)
 };
 const joinRoom = (msg) => {
-    scrollToBottom()
     selectedChat.msgContent = msg;
-    roomName.value = `${msg.messageContents[0].sender}-${msg.messageContents[0].text}`
-    socket.emit('join-room', roomName.value)
+    roomName.value = selectedChat.msgContent.chatters.join('-')
+    socket.emit('join-room', msg.chatters.join("-"))
     socket.on("message:received", data => {
+        console.log(data)
         selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(data)
     })
 }
@@ -93,7 +104,7 @@ const addMessage = () => {
     selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(newMessage)
     socket.emit('message', { message: newMessage, room: roomName.value })
     newMessageText.value = ''
-    store.dispatch('sendMessage', {newMessage, userId: returnMessageUser(selectedChat.msgContent.userId).id})
+    store.dispatch('sendMessage', { newMessage, chatId: selectedChat.msgContent.id })
 }
 // import { text } from '@fortawesome/fontawesome-svg-core';
 // import { io } from 'socket.io-client';

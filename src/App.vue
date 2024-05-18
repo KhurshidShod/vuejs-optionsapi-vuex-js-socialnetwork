@@ -12,11 +12,13 @@ export default {
   created() {
     this.getUsers()
     this.getPosts()
+    this.getMessages()
   },
   methods: {
     ...mapActions([
       'getUsers',
-      'getPosts'
+      'getPosts',
+      'getMessages'
     ])
   }
 }
