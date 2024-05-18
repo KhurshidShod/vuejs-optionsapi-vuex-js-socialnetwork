@@ -13,9 +13,10 @@
             </div>
         </div>
         <div v-if="isJoined">
-            <textarea name="" id="" v-model="text" @keyup.enter="sendMessage">
+            <textarea name="" id="" v-model="text">
 
                 </textarea>
+                <button @click="sendMessage">send</button>
         </div>
     </div>
 </template>
