@@ -131,5 +131,8 @@ export default createStore({
         }),
       });
     },
+    async sendMessage({commit}, newMessage){
+      
+    }
   },
 });

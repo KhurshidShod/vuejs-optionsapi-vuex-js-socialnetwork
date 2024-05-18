@@ -14,7 +14,8 @@ import {
   faComment,
   faSearch,
   faRightToBracket,
-  faXmark
+  faXmark,
+  faPaperPlane
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import store from "./store/store.js";
@@ -31,6 +32,7 @@ library.add(
   faHome,
   faMessage,
   faCirclePlus,
+  faPaperPlane,
   faRightToBracket,
   faUser,
   faBarsStaggered,
