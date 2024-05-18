@@ -42,7 +42,7 @@ export default {
     methods: {
         join() {
             this.isJoined = true
-            this.socketInstance = io('http://localhost:3000')
+            this.socketInstance = io('https://peaceful-commitment-production.up.railway.app/')
             console.log(this.currentUser)
             this.socketInstance.emit('join-room', this.currentUser)
             this.socketInstance.on("message:received", data => {
