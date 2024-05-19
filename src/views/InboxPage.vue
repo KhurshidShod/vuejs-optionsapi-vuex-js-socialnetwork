@@ -86,7 +86,6 @@ const joinRoom = (msg) => {
     socket.on("message:received", data => {
         selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(data);
         const audio = new Audio(receivedSound);
-        audio.volume = 0.1;
         audio.play()
     })
 
