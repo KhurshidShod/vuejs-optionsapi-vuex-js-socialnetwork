@@ -23,7 +23,8 @@
                                     $store.state.user.id)).username }}
                                 </p>
                             </div>
-                            <button @click="selectedChat.msgContent = null" class="closeChat"><font-awesome-icon icon="fa-solid fa-xmark" /></button>
+                            <button @click="selectedChat.msgContent = null" class="closeChat"><font-awesome-icon
+                                    icon="fa-solid fa-xmark" /></button>
 
                         </div>
                         <div class="messages__contents_messages" ref="scrollBottomRef">
@@ -44,26 +45,6 @@
             </section>
         </div>
     </main>
-    <!-- <div class="wrapper">
-        <form v-if="!isJoined" action="" @submit.prevent="join">
-            <input type="text" name="" id="" v-model="currentUser">
-            <button>Join</button>
-        </form>
-        <div v-if="isJoined">
-            <div v-for="message in messages" :key="message.id">
-                <b>
-                    {{ message.user }}:
-                </b>
-                {{ message.text }}
-            </div>
-        </div>
-        <div v-if="isJoined">
-            <textarea name="" id="" v-model="text">
-
-                </textarea>
-                <button @click="sendMessage">send</button>
-        </div>
-    </div> -->
 </template>
 
 <script setup>
@@ -71,6 +52,8 @@ import { io } from 'socket.io-client';
 import { computed, onUpdated, reactive, ref } from 'vue';
 import Header from '../components/Sidebar.vue';
 import { useStore } from 'vuex';
+import sentSound from '../assets/audio/COMCell_Message sent (ID 1313)_BSB.wav'
+import receivedSound from '../assets/audio/Voicy_Telegram SFX 2.mp3'
 
 const store = useStore()
 const selectedChat = reactive({ msgContent: null })
@@ -101,8 +84,10 @@ const joinRoom = (msg) => {
     roomName.value = selectedChat.msgContent.chatters.join('-')
     socket.emit('join-room', msg.chatters.join("-"))
     socket.on("message:received", data => {
-        console.log(data)
-        selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(data)
+        selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(data);
+        const audio = new Audio(receivedSound);
+        audio.volume = 0.1;
+        audio.play()
     })
 
 }
@@ -114,7 +99,10 @@ const addMessage = () => {
     selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(newMessage)
     socket.emit('message', { message: newMessage, room: roomName.value })
     newMessageText.value = ''
-    store.dispatch('sendMessage', { newMessage, chatId: selectedChat.msgContent.id })
+    store.dispatch('sendMessage', { newMessage, chatId: selectedChat.msgContent.id });
+    const audio = new Audio(sentSound);
+    audio.volume = 0.1;
+    audio.play()
 }
 </script>
 
@@ -196,7 +184,8 @@ main {
                 justify-content: start;
                 align-items: start;
                 flex-direction: column;
-                &_user{
+
+                &_user {
                     width: 100%;
                     height: 50px;
                     background-color: var(--bg-main);
@@ -204,20 +193,24 @@ main {
                     justify-content: space-between;
                     align-items: center;
                     border-bottom: 1px solid var(--border-main);
-                    div{
+
+                    div {
                         display: flex;
                         justify-content: start;
                         align-items: center;
                         gap: 0.5rem;
-                        img{
+
+                        img {
                             border-radius: 50%;
                         }
-                        p{
+
+                        p {
                             color: white;
                             font-weight: 700;
                         }
                     }
-                    button{
+
+                    button {
                         font-size: 24px;
                         color: white;
                         background-color: transparent;
@@ -225,6 +218,7 @@ main {
                         cursor: pointer;
                     }
                 }
+
                 form {
                     width: 100%;
                     position: absolute;

@@ -49,7 +49,9 @@
                 </label>
                 <ul v-if="searchResultUsers" class="search_results">
                     <li v-for="user in searchResultUsers" :key="user.id">
-                        {{ user.fullName }}
+                        <router-link :to="`/${user.username}`">
+                            {{ user.fullName }}
+                        </router-link>
                     </li>
                     <li class="no__user" v-if="searchResultUsers.length === 0">Sorry, your friend not found 😔</li>
                 </ul>
@@ -92,6 +94,11 @@ export default {
             }
         }
     },
+    watch: {
+        '$route'(to, from) {
+            this.searchText = ""
+        }
+    }
 }
 </script>
 
@@ -317,7 +324,16 @@ header {
                     align-items: center;
                     padding-left: 0.5rem;
                     color: white;
-                    cursor: pointer;
+
+                    a {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        justify-content: start;
+                        align-items: center;
+                        color: white;
+                        cursor: pointer;
+                    }
 
                     &.no__user {
                         box-shadow: none;

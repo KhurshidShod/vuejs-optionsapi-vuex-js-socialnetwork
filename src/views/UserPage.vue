@@ -6,38 +6,37 @@
             </Teleport>
             <Header />
             <section>
-                <div class="profile">
-                    <div class="profile__top">
-                        <div class="profile__top_image">
+                <div class="user-profile">
+                    <div class="user-profile__top">
+                        <div class="user-profile__top_image">
                             <img :src="user?.image" alt="">
                         </div>
-                        <div class="profile__top_datas_name">
+                        <div class="user-profile__top_datas_name">
                             <h2><b>{{ user?.username }}</b></h2>
-                            <button>Edit profile</button>
                         </div>
-                        <div class="profile__top_datas_info">
+                        <div class="user-profile__top_datas_info">
                             <p>
-                                <b>{{ posts.filter(post => post.userId === user.id).length }}</b>
+                                <b>{{ posts.filter(post => post.userId === user?.id).length }}</b>
                                 posts
                             </p>
+                            
                         </div>
-                        <div class="profile__top_datas_bio">
+                        <div class="user-profile__top_datas_bio">
                             <i>{{ user?.fullName }}</i>
                             <p>{{ user?.phoneNumber }}</p>
                             <p>Lorem ipsum dolor sit amet.</p>
-                            <button @click="handleLogout">Log out</button>
-
+                            <button>Send message</button>
                         </div>
                     </div>
-                    <div class="profile__posts" v-if="posts.filter(post => post.userId === user.id).length > 0">
+                    <div class="user-profile__posts" v-if="posts.filter(post => post.userId === user?.id).length > 0">
                         <div :style="{
                             'background-image': 'url(' + post.images[0] + ')'
                         }" @click="() => {
                             fullPost = post;
                             isFullPostCardOpen = true
-                        }" v-for="post in posts.filter(post => post.userId === user.id)" :key="post.id"
-                            class="profile__posts_post">
-                            <div class="profile__posts_post_hover">
+                        }" v-for="post in posts.filter(post => post.userId === user?.id)" :key="post.id"
+                            class="user-profile__posts_post">
+                            <div class="user-profile__posts_post_hover">
                                 <span>
                                     <font-awesome-icon icon="fa-solid fa-heart" />
                                     {{ post.likes.length }}
@@ -49,7 +48,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-else class="profile__posts">
+                    <div v-else class="user-profile__posts">
                         <h1 style="color: white">No posts yet</h1>
                     </div>
                 </div>
@@ -59,28 +58,22 @@
 </template>
 
 <script setup>
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router'
 import Header from '../components/Sidebar.vue'
 import { computed, defineAsyncComponent, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { useStore } from 'vuex';
+const route = useRoute()
+const store = useStore();
+const posts = computed(() => store.state.posts);
+const user = computed(() => store.state.users.find(user => user.username === route.params.username));
 
 const FullPostCard = defineAsyncComponent(() =>
     import('../components/FullPostCard.vue')
-)
-
-const store = useStore()
-const router = useRouter()
-
-const posts = computed(() => store.state.posts)
-const user = computed(() => store.state.user)
+);
 
 const fullPost = ref(null);
 const isFullPostCardOpen = ref(false);
 
-const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push('/')
-}
 </script>
 
 <style lang="scss" scoped>
@@ -95,7 +88,7 @@ main {
         flex-direction: row;
         flex-wrap: nowrap;
 
-        .profile {
+        .user-profile {
             width: calc(100% - 350px);
             display: flex;
             justify-content: start;
@@ -211,15 +204,11 @@ main {
                         font-size: 18px;
                         font-weight: 600;
                         color: white;
-                        background-color: rgba(255, 0, 0, 0.74);
+                        background-color: rgba(0, 136, 255, 0.74);
                         cursor: pointer;
 
                         @media (max-width: 650px) {
                             max-width: none;
-                        }
-
-                        &:hover {
-                            background-color: rgba(255, 0, 0, .65);
                         }
                     }
                 }
@@ -247,7 +236,7 @@ main {
                     cursor: pointer;
 
                     &:hover {
-                        .profile__posts_post_hover {
+                        .user-profile__posts_post_hover {
                             display: flex !important;
                         }
                     }

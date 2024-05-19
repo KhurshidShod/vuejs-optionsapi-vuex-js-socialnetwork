@@ -46,14 +46,14 @@ import 'swiper/css'
 import 'swiper/css/pagination'
 import { toast } from 'vue3-toastify';
 import { useStore } from 'vuex';
-import { computed, inject, onMounted } from 'vue';
+import { inject, onMounted } from 'vue';
 
-const { post } = defineProps(['post'])
+const { post } = defineProps(['post']);
 const store = useStore();
-const $eventBus = inject('$eventBus')
-const users = computed(() => store.state.users)
+const $eventBus = inject('$eventBus');
 const modules = [Pagination];
-const comment = defineModel({ type: String })
+const comment = defineModel({ type: String });
+defineEmits(['closeFullPost']);
 
 onMounted(() => {
     $eventBus.$on("newCommentCreated", (data) => {
