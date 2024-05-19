@@ -47,3 +47,9 @@ input, button, textarea{
 .swiper-pagination-bullet-active{
   background-color: var(--bg-green) !important;
 }
+@media (max-width: 600px) {
+  .container{
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

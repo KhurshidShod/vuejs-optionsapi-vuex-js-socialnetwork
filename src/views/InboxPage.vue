@@ -4,7 +4,7 @@
             <Header />
             <section class="message__wrapper">
                 <div class="messages">
-                    <div class="messages__users">
+                    <div class="messages__users" :class="{ usersTabClosed: selectedChat.msgContent }">
                         <div @click="() => {
                             joinRoom(msg)
                         }" v-for="msg in allMessages" :key="msg.userId">
@@ -15,6 +15,17 @@
                         </div>
                     </div>
                     <div class="messages__contents" v-if="selectedChat.msgContent">
+                        <div class="messages__contents_user">
+                            <div>
+                                <img :src="returnMessageUser(selectedChat.msgContent.chatters.find(id => id !== $store.state.user.id)).image"
+                                    width="35px" height="35px" alt="">
+                                <p>{{ returnMessageUser(selectedChat.msgContent.chatters.find(id => id !==
+                                    $store.state.user.id)).username }}
+                                </p>
+                            </div>
+                            <button @click="selectedChat.msgContent = null" class="closeChat"><font-awesome-icon icon="fa-solid fa-xmark" /></button>
+
+                        </div>
                         <div class="messages__contents_messages" ref="scrollBottomRef">
                             <div :class="{ myMessages: chat.sender === $store.state.user.id }"
                                 v-for="chat in selectedChat.msgContent.messageContents" :key="chat">
@@ -73,7 +84,7 @@ const messages = computed(() => {
 const allMessages = messages;
 onUpdated(() => {
     scrollToBottom();
-    store.dispatch('getMessages')
+    // store.dispatch('getMessages')
 })
 
 const scrollToBottom = () => {
@@ -93,6 +104,7 @@ const joinRoom = (msg) => {
         console.log(data)
         selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(data)
     })
+
 }
 const addMessage = () => {
     const newMessage = {
@@ -104,48 +116,6 @@ const addMessage = () => {
     newMessageText.value = ''
     store.dispatch('sendMessage', { newMessage, chatId: selectedChat.msgContent.id })
 }
-// import { text } from '@fortawesome/fontawesome-svg-core';
-// import { io } from 'socket.io-client';
-// export default {
-//     data() {
-//         return {
-//             isJoined: false,
-//             messages: [
-//                 {
-//                     id: 1,
-//                     user: 'xrwd____',
-//                     text: 'Salom'
-//                 }
-//             ],
-//             text: '',
-//             currentUser: ''
-//         }
-//     },
-//     methods: {
-//         join() {
-//             this.isJoined = true
-//             this.socketInstance = io('https://peaceful-commitment-production.up.railway.app/')
-//             console.log(this.currentUser)
-//             this.socketInstance.emit('join-room', this.currentUser)
-//             this.socketInstance.on("message:received", data => {
-//                 this.messages = this.messages.concat(data)
-//             })
-//         },
-//         sendMessage() {
-//             this.addMessage();
-//             this.text = ''
-//         },
-//         addMessage() {
-//             const message = {
-//                 id: new Date().getTime(),
-//                 text: this.text,
-//                 user: this.$store.state.user.username
-//             };
-//             this.messages = this.messages.concat(message)
-//             this.socketInstance.emit('message', {message: message, room: this.currentUser})
-//         }
-//     },
-// }
 </script>
 
 <style lang="scss" scoped>
@@ -168,6 +138,7 @@ main {
             justify-content: start;
             align-items: start;
 
+
             @media (max-width: 1180px) {
                 width: calc(100% - 425px);
                 margin-left: 75px;
@@ -181,7 +152,7 @@ main {
             overflow: auto;
 
             &__users {
-                width: 250px;
+                min-width: 200px;
                 height: 100%;
                 display: flex;
                 justify-content: start;
@@ -190,6 +161,15 @@ main {
                 border-right: 1px solid var(--bg-green);
                 padding-top: 2rem;
                 padding-bottom: 2rem;
+
+                @media (max-width: 600px) {
+                    flex-grow: 1;
+                    border: none;
+
+                    &.usersTabClosed {
+                        display: none;
+                    }
+                }
 
                 div {
                     width: 100%;
@@ -212,12 +192,39 @@ main {
                 position: relative;
                 width: 100%;
                 height: 100%;
-                padding-top: 2rem;
                 display: flex;
                 justify-content: start;
                 align-items: start;
                 flex-direction: column;
-
+                &_user{
+                    width: 100%;
+                    height: 50px;
+                    background-color: var(--bg-main);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 1px solid var(--border-main);
+                    div{
+                        display: flex;
+                        justify-content: start;
+                        align-items: center;
+                        gap: 0.5rem;
+                        img{
+                            border-radius: 50%;
+                        }
+                        p{
+                            color: white;
+                            font-weight: 700;
+                        }
+                    }
+                    button{
+                        font-size: 24px;
+                        color: white;
+                        background-color: transparent;
+                        border: none;
+                        cursor: pointer;
+                    }
+                }
                 form {
                     width: 100%;
                     position: absolute;
@@ -254,7 +261,7 @@ main {
                     padding: 10px;
                     max-height: calc(100vh - 50px);
                     overflow: auto;
-                    padding-bottom: 2rem;
+                    padding-bottom: 3rem;
 
                     div {
                         width: 100%;
@@ -262,7 +269,7 @@ main {
                         justify-content: start;
                         align-items: center;
                         flex-direction: row;
-                        gap: .5rem;
+                        gap: .3rem;
 
                         &.myMessages {
                             flex-direction: row-reverse;
@@ -271,6 +278,8 @@ main {
                             p {
                                 background-color: white;
                                 color: black;
+                                border-top-right-radius: 0;
+                                border-top-left-radius: 15px;
                             }
                         }
 
@@ -279,11 +288,14 @@ main {
                         }
 
                         p {
+                            position: relative;
                             padding: .5rem;
                             background-color: rgb(0, 89, 255);
-                            border-radius: 5px;
+                            border-radius: 15px;
                             margin-top: 2rem;
                             color: white;
+                            border-top-left-radius: 0;
+
                         }
                     }
                 }
