@@ -1,49 +1,51 @@
 <template>
     <main>
-        <div class="container">
-            <Header />
-            <section class="message__wrapper">
-                <div class="messages">
-                    <div class="messages__users" :class="{ usersTabClosed: selectedChat.msgContent }">
-                        <div @click="() => {
-                            joinRoom(msg)
-                        }" v-for="msg in allMessages" :key="msg.userId">
-                            <img :src="returnMessageUser(msg.chatters.find(id => id !== $store.state.user.id)).image"
+        <Header />
+        <section class="message__wrapper">
+            <div class="messages">
+                <div class="messages__users" :class="{ usersTabClosed: selectedChat.msgContent }">
+                    <div class="messages__users_new">
+                        <input v-model="newChatUser" type="text" placeholder="Enter username of receiver" name="" id="">
+                        <button @click="createNewMessage">Send new message</button>
+                    </div>
+                    <div class="messages__users_user" @click="() => {
+                        joinRoom(msg)
+                    }" v-for="msg in messages" :key="msg.userId">
+                        <img :src="returnMessageUser(msg.chatters.find(id => id !== $store.state.user.id)).image"
+                            width="35px" height="35px" alt="">
+                        <p>{{ returnMessageUser(msg.chatters.find(id => id !== $store.state.user.id)).username }}
+                        </p>
+                    </div>
+                </div>
+                <div class="messages__contents" v-if="selectedChat.msgContent">
+                    <div class="messages__contents_user">
+                        <div>
+                            <img :src="returnMessageUser(selectedChat.msgContent.chatters.find(id => id !== $store.state.user.id)).image"
                                 width="35px" height="35px" alt="">
-                            <p>{{ returnMessageUser(msg.chatters.find(id => id !== $store.state.user.id)).username }}
+                            <p>{{ returnMessageUser(selectedChat.msgContent.chatters.find(id => id !==
+                                $store.state.user.id)).username }}
+                            </p>
+                        </div>
+                        <button @click="selectedChat.msgContent = null" class="closeChat"><font-awesome-icon
+                                icon="fa-solid fa-xmark" /></button>
+
+                    </div>
+                    <div class="messages__contents_messages" ref="scrollBottomRef">
+                        <div :class="{ myMessages: chat.sender === $store.state.user.id }"
+                            v-for="chat in selectedChat.msgContent.messageContents" :key="chat">
+                            <img :src="returnMessageUser(chat.sender).image" width="35px" height="35px" alt="">
+                            <p>
+                                {{ chat.text }}
                             </p>
                         </div>
                     </div>
-                    <div class="messages__contents" v-if="selectedChat.msgContent">
-                        <div class="messages__contents_user">
-                            <div>
-                                <img :src="returnMessageUser(selectedChat.msgContent.chatters.find(id => id !== $store.state.user.id)).image"
-                                    width="35px" height="35px" alt="">
-                                <p>{{ returnMessageUser(selectedChat.msgContent.chatters.find(id => id !==
-                                    $store.state.user.id)).username }}
-                                </p>
-                            </div>
-                            <button @click="selectedChat.msgContent = null" class="closeChat"><font-awesome-icon
-                                    icon="fa-solid fa-xmark" /></button>
-
-                        </div>
-                        <div class="messages__contents_messages" ref="scrollBottomRef">
-                            <div :class="{ myMessages: chat.sender === $store.state.user.id }"
-                                v-for="chat in selectedChat.msgContent.messageContents" :key="chat">
-                                <img :src="returnMessageUser(chat.sender).image" width="35px" height="35px" alt="">
-                                <p>
-                                    {{ chat.text }}
-                                </p>
-                            </div>
-                        </div>
-                        <form action="" @submit.prevent="addMessage">
-                            <input v-model="newMessageText" placeholder="Write a message..." type="" name="" value="">
-                            <button><font-awesome-icon icon="fa-solid fa-paper-plane" /></button>
-                        </form>
-                    </div>
+                    <form action="" @submit.prevent="addMessage">
+                        <input v-model="newMessageText" placeholder="Write a message..." type="" name="" value="">
+                        <button><font-awesome-icon icon="fa-solid fa-paper-plane" /></button>
+                    </form>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
     </main>
 </template>
 
@@ -54,22 +56,52 @@ import Header from '../components/Sidebar.vue';
 import { useStore } from 'vuex';
 import sentSound from '../assets/audio/COMCell_Message sent (ID 1313)_BSB.wav'
 import receivedSound from '../assets/audio/Voicy_Telegram SFX 2.mp3'
+import { toast } from 'vue3-toastify';
 
 const store = useStore()
 const selectedChat = reactive({ msgContent: null })
 const socket = io('https://peaceful-commitment-production.up.railway.app/');
-const newMessageText = defineModel({ type: String })
+const newMessageText = defineModel('newMessageText', { type: String })
+const newChatUser = defineModel('newChatUser', { type: String })
 const roomName = ref('')
 const scrollBottomRef = ref(null)
 const messages = computed(() => {
     return store.state?.messages.filter(msg => msg.chatters.includes(store.state.user.id))
 })
-const allMessages = messages;
+
 onUpdated(() => {
     scrollToBottom();
-    // store.dispatch('getMessages')
 })
 
+const createNewMessage = () => {
+    const user = store.state.users.find(usr => usr.username === newChatUser.value)
+    if (!user) {
+        toast("No such user found", {
+            type: 'error',
+            theme: 'dark'
+        })
+    } else if (user.username === store.state.user.username) {
+        toast("You cannot send message to yourself", {
+            type: 'warning',
+            theme: 'dark'
+        })
+    } else {
+        const newMessage = messages.value.find(msg => msg.chatters.includes(user.id));
+        if (newMessage) {
+            joinRoom(newMessage)
+        } else {
+            store.commit('addMessage', {
+                chatters: [store.state.user.id, user.id],
+                messageContents: []
+            })
+            joinRoom({
+                chatters: [store.state.user.id, user.id],
+                messageContents: [],
+                id: Date.now().toString()
+            })
+        }
+    }
+}
 const scrollToBottom = () => {
     const scrollHeight = scrollBottomRef.value?.scrollHeight;
     if (scrollBottomRef.value) {
@@ -95,10 +127,11 @@ const addMessage = () => {
         sender: store.state.user.id,
         text: newMessageText.value
     }
+    console.log(selectedChat.msgContent)
     selectedChat.msgContent.messageContents = selectedChat.msgContent.messageContents.concat(newMessage)
     socket.emit('message', { message: newMessage, room: roomName.value })
     newMessageText.value = ''
-    store.dispatch('sendMessage', { newMessage, chatId: selectedChat.msgContent.id });
+    store.dispatch('sendMessage', { newMessage, chat: selectedChat.msgContent });
     const audio = new Audio(sentSound);
     audio.volume = 0.1;
     audio.play()
@@ -148,6 +181,8 @@ main {
                 border-right: 1px solid var(--bg-green);
                 padding-top: 2rem;
                 padding-bottom: 2rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
 
                 @media (max-width: 600px) {
                     flex-grow: 1;
@@ -158,7 +193,45 @@ main {
                     }
                 }
 
-                div {
+                &_new {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: column;
+                    height: auto;
+                    gap: 0.5rem;
+                    padding-bottom: .5rem;
+                    border-bottom: 1px solid var(--bg-green);
+
+                    input {
+                        width: 100%;
+                        height: 35px;
+                        border-radius: 7px;
+                        border: 1px solid var(--bg-green);
+                        padding-left: 5px;
+                        background-color: transparent;
+                        color: var(--bg-green);
+
+                        &::placeholder {
+                            font-size: 12px;
+                        }
+                    }
+
+                    button {
+                        width: 100%;
+                        height: 35px;
+                        border-radius: 7px;
+                        background-color: var(--bg-green);
+                        color: white;
+                        font-size: 16px;
+                        font-weight: 600;
+                        border: none;
+                        cursor: pointer;
+                    }
+                }
+
+                &_user {
                     width: 100%;
                     display: flex;
                     justify-content: start;
@@ -183,6 +256,7 @@ main {
                 justify-content: start;
                 align-items: start;
                 flex-direction: column;
+                padding-inline: .5rem;
 
                 &_user {
                     width: 100%;

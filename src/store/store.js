@@ -9,7 +9,7 @@ import {
   arrayUnion,
   arrayRemove,
   setDoc,
-  getDoc,
+  getDoc
 } from "firebase/firestore";
 import { toast } from "vue3-toastify";
 import router from "../routes/router.js";
@@ -22,7 +22,6 @@ export default createStore({
     user: null,
     createPostLoading: false,
   },
-  modules: {},
   mutations: {
     setUsers(state, usersData) {
       const loggedInUser = localStorage.getItem("user");
@@ -76,6 +75,9 @@ export default createStore({
     },
     loginUser(state, user) {
       state.user = user;
+    },
+    addMessage(state, newMsg) {
+      state.messages.push(newMsg);
     },
   },
   actions: {
@@ -145,36 +147,31 @@ export default createStore({
     },
     async sendMessage({ commit }, data) {
       console.log(data);
-      // console.log(data.userId)
-      // console.log(this.state.user.id)
-      var changingData = null;
-      // var changingData2 = null;
-      const updatingRef = doc(db, "messages", data.chatId);
-      // const updatingRef2 = doc(db, "users", data.userId);
-      const docRef = doc(db, "messages", data.chatId);
-      // const docRef2 = doc(db, "users", data.userId);
-      const docSnap = await getDoc(docRef);
-      // const docSnap2 = await getDoc(docRef2);
-      console.log(docSnap.data());
-      changingData = [...docSnap.data().messageContents, data.newMessage];
-      console.log(changingData);
-      // console.log(docSnap.data())
-      // if (docSnap2.data().messages) {
-      //   changingData2 = docSnap2.data().messages.map((msg) => {
-      //     if (msg.userId === this.state.user.id) {
-      //       msg.messageContents = msg.messageContents.concat(data.newMessage);
-      //     }
-      //     return msg;
-      //   });
-      // } else {
-      //   changingData = [data.newMessage]
-      // }
-      await updateDoc(updatingRef, {
-        messageContents: changingData,
-      });
-      // await updateDoc(updatingRef2, {
-      //   messages: changingData2,
-      // });
+      if (!this.state.messages.find((msg) => msg.id === data.chat.id)) {
+        const newChat = {
+          ...data.chat,
+          messageContents: [data.newMessage],
+        };
+        this.state.messages.push(newChat)
+        const docRef = await setDoc(doc(db, "messages", data.chat.id), newChat);
+      } else {
+        var changingData = null;
+        const updatingRef = doc(db, "messages", data.chat.id);
+        const docRef = doc(db, "messages", data.chat.id);
+        const docSnap = await getDoc(docRef);
+        changingData = [...docSnap.data().messageContents, data.newMessage];
+        console.log(changingData);
+        await updateDoc(updatingRef, {
+          messageContents: changingData,
+        });
+      }
+    },
+  },
+  getters: {
+    getUserChats(state) {
+      return state.messages.filter((msg) =>
+        msg.chatters.includes(state.user.id)
+      );
     },
   },
 });

@@ -19,13 +19,11 @@
                                 <b>{{ posts.filter(post => post.userId === user?.id).length }}</b>
                                 posts
                             </p>
-                            
                         </div>
                         <div class="user-profile__top_datas_bio">
                             <i>{{ user?.fullName }}</i>
                             <p>{{ user?.phoneNumber }}</p>
                             <p>Lorem ipsum dolor sit amet.</p>
-                            <button>Send message</button>
                         </div>
                     </div>
                     <div class="user-profile__posts" v-if="posts.filter(post => post.userId === user?.id).length > 0">
@@ -59,9 +57,12 @@
 
 <script setup>
 import Header from '../components/Sidebar.vue'
-import { computed, defineAsyncComponent, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, defineAsyncComponent, inject, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+
+const $eventBus = inject('$eventBus');
+const router = useRouter()
 const route = useRoute()
 const store = useStore();
 const posts = computed(() => store.state.posts);
