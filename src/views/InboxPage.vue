@@ -10,7 +10,7 @@
                     </div>
                     <div class="messages__users_user" @click="() => {
                         joinRoom(msg)
-                    }" v-for="msg in messages" :key="msg.userId">
+                    }" v-for="msg in store.getters.getUserMessages" :key="msg.userId">
                         <img :src="returnMessageUser(msg.chatters.find(id => id !== $store.state.user.id)).image"
                             width="35px" height="35px" alt="">
                         <p>{{ returnMessageUser(msg.chatters.find(id => id !== $store.state.user.id)).username }}
@@ -51,7 +51,7 @@
 
 <script setup>
 import { io } from 'socket.io-client';
-import { computed, onUpdated, reactive, ref } from 'vue';
+import { computed, onBeforeUpdate, onMounted, onUpdated, reactive, ref } from 'vue';
 import Header from '../components/Sidebar.vue';
 import { useStore } from 'vuex';
 import sentSound from '../assets/audio/COMCell_Message sent (ID 1313)_BSB.wav'
@@ -65,9 +65,6 @@ const newMessageText = defineModel('newMessageText', { type: String })
 const newChatUser = defineModel('newChatUser', { type: String })
 const roomName = ref('')
 const scrollBottomRef = ref(null)
-const messages = computed(() => {
-    return store.state?.messages.filter(msg => msg.chatters.includes(store.state.user.id))
-})
 
 onUpdated(() => {
     scrollToBottom();
@@ -86,7 +83,7 @@ const createNewMessage = () => {
             theme: 'dark'
         })
     } else {
-        const newMessage = messages.value.find(msg => msg.chatters.includes(user.id));
+        const newMessage = store.getters.getUserMessages.find(msg => msg.chatters.includes(user.id));
         if (newMessage) {
             joinRoom(newMessage)
         } else {
@@ -112,6 +109,7 @@ const returnMessageUser = (id) => {
     return store.state.users.find(usr => usr.id === id)
 };
 const joinRoom = (msg) => {
+    store.dispatch('getMessages')
     selectedChat.msgContent = msg;
     roomName.value = selectedChat.msgContent.chatters.join('-')
     socket.emit('join-room', msg.chatters.join("-"))
@@ -120,7 +118,7 @@ const joinRoom = (msg) => {
         const audio = new Audio(receivedSound);
         audio.play()
     })
-
+    selectedChat.msgContent = msg;
 }
 const addMessage = () => {
     const newMessage = {

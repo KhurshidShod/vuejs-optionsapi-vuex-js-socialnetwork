@@ -11,9 +11,7 @@
                     <p></p>
                 </div>
             </section>
-            <Teleport v-if="isCreateModalOpen" to="body">
-                <CreatePost></CreatePost>
-            </Teleport>
+
             <Teleport v-if="isFullPostCardOpen" to="body">
                 <FullPostCard @close-full-post="isFullPostCardOpen = false" :post="fullPost"></FullPostCard>
             </Teleport>
@@ -41,7 +39,6 @@ export default {
     },
     data() {
         return {
-            isCreateModalOpen: false,
             isFullPostCardOpen: false,
             fullPost: null,
             allPosts: []

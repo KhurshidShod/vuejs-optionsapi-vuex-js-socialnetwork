@@ -9,7 +9,7 @@ import {
   arrayUnion,
   arrayRemove,
   setDoc,
-  getDoc
+  getDoc,
 } from "firebase/firestore";
 import { toast } from "vue3-toastify";
 import router from "../routes/router.js";
@@ -95,7 +95,7 @@ export default createStore({
     },
     async createNewUser({ commit }, newUser) {
       localStorage.setItem("user", JSON.stringify(newUser));
-      const docRef = await addDoc(collection(db, "users"), newUser);
+      const docRef = await setDoc(doc(db, "users", newUser.id), newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
       router.push("/");
       commit("createNewUser", newUser);
@@ -152,7 +152,7 @@ export default createStore({
           ...data.chat,
           messageContents: [data.newMessage],
         };
-        this.state.messages.push(newChat)
+        this.state.messages.push(newChat);
         const docRef = await setDoc(doc(db, "messages", data.chat.id), newChat);
       } else {
         var changingData = null;
@@ -166,6 +166,26 @@ export default createStore({
         });
       }
     },
+    async editUserData({ commit }, editedData) {
+      const updatingRef = doc(db, "users", this.state.user.id);
+      if (editedData.hasOwnProperty("password")) {
+        await updateDoc(updatingRef, {
+          username: editedData.username,
+          fullName: editedData.fullName,
+          email: editedData.email,
+          phoneNumber: editedData.phoneNumber,
+          password: editedData.password,
+        }).catch((err) => console.log(err));
+      } else {
+        await updateDoc(updatingRef, {
+          username: editedData.username,
+          fullName: editedData.fullName,
+          email: editedData.email,
+          phoneNumber: editedData.phoneNumber,
+        }).catch((err) => console.log(err));
+      }
+      this.state.user = {...this.state.user, ...editedData}
+    },
   },
   getters: {
     getUserChats(state) {
@@ -173,5 +193,8 @@ export default createStore({
         msg.chatters.includes(state.user.id)
       );
     },
+    getUserMessages(state){
+      return state?.messages.filter(msg => msg.chatters.includes(state.user.id))
+    }
   },
 });

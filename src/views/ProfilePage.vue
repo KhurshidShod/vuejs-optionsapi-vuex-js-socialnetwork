@@ -4,6 +4,12 @@
             <Teleport v-if="isFullPostCardOpen" to="body">
                 <FullPostCard @close-full-post="isFullPostCardOpen = false" :post="fullPost"></FullPostCard>
             </Teleport>
+            <Teleport to="body">
+                <Transition name="edit">
+                    <EditUserInfo v-if="isEditingUserInfo" @close-edit-form="isEditingUserInfo = false" :user="user">
+                    </EditUserInfo>
+                </Transition>
+            </Teleport>
             <Header />
             <section>
                 <div class="profile">
@@ -13,7 +19,7 @@
                         </div>
                         <div class="profile__top_datas_name">
                             <h2><b>{{ user?.username }}</b></h2>
-                            <button>Edit profile</button>
+                            <button @click="isEditingUserInfo = true">Edit profile</button>
                         </div>
                         <div class="profile__top_datas_info">
                             <p>
@@ -66,7 +72,10 @@ import { computed, defineAsyncComponent, ref } from 'vue';
 
 const FullPostCard = defineAsyncComponent(() =>
     import('../components/FullPostCard.vue')
-)
+);
+const EditUserInfo = defineAsyncComponent(() =>
+    import('../components/EditUserInfo.vue')
+);
 
 const store = useStore()
 const router = useRouter()
@@ -76,6 +85,7 @@ const user = computed(() => store.state.user)
 
 const fullPost = ref(null);
 const isFullPostCardOpen = ref(false);
+const isEditingUserInfo = ref(false)
 
 const handleLogout = () => {
     localStorage.removeItem("user");
@@ -84,6 +94,23 @@ const handleLogout = () => {
 </script>
 
 <style lang="scss" scoped>
+.edit-enter-from,
+.edit-leave-to {
+    opacity: 0;
+    transform: scale(0);
+}
+
+.edit-enter-to,
+.edit-leave-from {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.edit-enter-active,
+.edit-leave-active {
+    transition: all .2s ease-in-out;
+}
+
 main {
     width: 100%;
 

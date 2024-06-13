@@ -53,3 +53,6 @@ input, button, textarea{
     padding-right: 10px;
   }
 }
+.red_text{
+  color: red;
+}
